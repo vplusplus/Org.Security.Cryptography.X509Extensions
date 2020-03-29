@@ -20,12 +20,6 @@ namespace UnitTests
 
         const string CertThumbPrint = "2E3257EE8FC8A72DB3778DFB3F9EDC7D0A9D66C7";
 
-        [TestInitialize]
-        public void TestInitialize()
-        {
-            X509Extensions.TraceLevel = TraceLevel.Info;
-        }
-
 
         [TestMethod]
         public void FindCertificateTest()

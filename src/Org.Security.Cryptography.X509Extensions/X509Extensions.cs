@@ -1,6 +1,5 @@
 ﻿
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
@@ -48,12 +47,10 @@ namespace Org.Security.Cryptography
             if (null == outputStream) throw new ArgumentNullException(nameof(outputStream));
             if (null == dataEncryptionAlgorithmName) throw new ArgumentNullException(nameof(dataEncryptionAlgorithmName));
 
-            MyTrace.Entering();
-
             try
             {
-                if (null == x509WithPublicKey.PublicKey) throw new ArgumentException("X509Certificate2.PublicKey was NULL.");
-                if (null == x509WithPublicKey.PublicKey.Key) throw new ArgumentException("X509Certificate2.PublicKey.Key was NULL.");
+                if (null == x509WithPublicKey.PublicKey) throw new Exception($"X509Certificate2.PublicKey was NULL. Cert: {x509WithPublicKey.Thumbprint}");
+                if (null == x509WithPublicKey.PublicKey.Key) throw new Exception($"X509Certificate2.PublicKey.Key was NULL. Cert: {x509WithPublicKey.Thumbprint}");
 
                 // IMP: We didn't create the Cert. DO NOT DISPOSE.
                 // IMP: Disposing the AsymmetricAlgorithm will render the X509Certificate2 useless for subsequent use.
@@ -63,26 +60,28 @@ namespace Org.Security.Cryptography
                 {
                     if (null == dataEncryptionAlgorithm) throw new Exception($"SymmetricAlgorithm.Create('{dataEncryptionAlgorithmName}') returned NULL.");
 
+                    // Set desired key and block size.
+                    // This may throw an excepion on invalid key/block sizes.
                     dataEncryptionAlgorithm.KeySize = keySize;
                     dataEncryptionAlgorithm.BlockSize = blockSize;
 
                     // The DataEncryptionKey and IV.
-                    byte[] dataEncryptionKey = dataEncryptionAlgorithm.Key;
-                    byte[] dataEncryptionIV = dataEncryptionAlgorithm.IV;
+                    byte[] dataEncryptionKey = dataEncryptionAlgorithm.Key ?? throw new Exception("dataEncryptionAlgorithm.Key was NULL.");
+                    byte[] dataEncryptionIV = dataEncryptionAlgorithm.IV ?? throw new Exception("dataEncryptionAlgorithm.IV was NULL.");
 
                     // Encrypt the DEK using the X509 public key (KEK).
                     var keyFormatter = new RSAPKCS1KeyExchangeFormatter(keyEncryptionAlgorithm);
                     byte[] encryptedDataEncryptionKey = keyFormatter.CreateKeyExchange(dataEncryptionKey);
 
-                    // Debug information (Set Trace to warning or above for PRD)
+                    // Essential debug information...
                     MyTrace.Info(() => $"KEK: {keyEncryptionAlgorithm.GetType().Name} / {keyEncryptionAlgorithm.KeySize} bits / {x509WithPublicKey.Thumbprint}");
                     MyTrace.Info(() => $"DEK: {dataEncryptionAlgorithm.GetType().Name} / {dataEncryptionAlgorithm.KeySize} bits. / BlockSize: {dataEncryptionAlgorithm.BlockSize} bits.");
 
-                    // Write the length & bytes of encrypted DEK and IV
+                    // Write the EncryptedDEK and the IV (length & bytes)
                     outputStream.WriteLengthAndBytes(encryptedDataEncryptionKey);
                     outputStream.WriteLengthAndBytes(dataEncryptionIV);
 
-                    // Write Data
+                    // Write encrypted data
                     using (var transform = dataEncryptionAlgorithm.CreateEncryptor())
                     using (var cryptoStream = new CryptoStream(outputStream, transform, CryptoStreamMode.Write))
                     {
@@ -110,16 +109,9 @@ namespace Org.Security.Cryptography
             if (null == x509WithPrivateKey) throw new ArgumentNullException(nameof(x509WithPrivateKey));
             if (null == dataEncryptionAlgorithmName) throw new ArgumentNullException(nameof(dataEncryptionAlgorithmName));
 
-            MyTrace.Entering();
-
-            // Data Encryption key (DEK) is read from the stream.
-            // DEK itself comes encrypted using the Key encryption key (KEK)
-            // Use X509 cert private key to decrypt the DEK
-            // Use the DEK to decrypt the data
-
             try
             {
-                if (null == x509WithPrivateKey.PrivateKey) throw new ArgumentException("X509Certificate2.PrivateKey was NULL.");
+                if (null == x509WithPrivateKey.PrivateKey) throw new Exception($"X509Certificate2.PrivateKey was NULL. Cert: {x509WithPrivateKey.Thumbprint}");
 
                 // IMP: We didn't create the Cert. DO NOT DISPOSE.
                 // IMP: Disposing the AsymmetricAlgorithm will render the X509Certificate2 useless for subsequent use.
@@ -233,18 +225,6 @@ namespace Org.Security.Cryptography
             if (bytesRead != 4) throw new Exception($"Unexpected end of stream. Expecting 4 bytes. Found {bytesRead} bytes.");
 
             return BitConverter.ToInt32(fourBytes, startIndex: 0);
-        }
-
-        /// <summary>
-        /// Because, .Net core doesn't honor TraceSwitches from the config files.
-        /// Try TraceSwitch "Org.Security.Cryptography" in config files.
-        /// If it doesn't work, update me.
-        /// </summary>
-        public static TraceLevel TraceLevel
-        {
-            set {
-                MyTrace.MyTraceSwitch = new TraceSwitch("", "", value.ToString());
-            }
         }
     }
 }
