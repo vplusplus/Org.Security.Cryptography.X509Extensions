@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29905.134
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTests", "UnitTests\UnitTests.csproj", "{C1DCEBAC-7A36-482D-BFD7-117FB6E36A4D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Org.Security.Cryptography.X509Extensions", "Org.Security.Cryptography.X509Extensions\Org.Security.Cryptography.X509Extensions.csproj", "{1050B0D5-DFC2-491A-B49D-088DEA765FE2}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C1DCEBAC-7A36-482D-BFD7-117FB6E36A4D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1DCEBAC-7A36-482D-BFD7-117FB6E36A4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1DCEBAC-7A36-482D-BFD7-117FB6E36A4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1DCEBAC-7A36-482D-BFD7-117FB6E36A4D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1050B0D5-DFC2-491A-B49D-088DEA765FE2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1050B0D5-DFC2-491A-B49D-088DEA765FE2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1050B0D5-DFC2-491A-B49D-088DEA765FE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1050B0D5-DFC2-491A-B49D-088DEA765FE2}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {854A5078-7E41-474A-827E-7FA6204BF5CA}
+	EndGlobalSection
+EndGlobal
