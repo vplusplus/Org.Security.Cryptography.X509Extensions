@@ -1,9 +1,14 @@
-﻿
 
-    Credit:
-    https://crypto.stackexchange.com/questions/3859/fips-140-2-compliant-algorithms
+// Microsoft’s approach to FIPS 140-2 validation
+// Using Windows in a FIPS 140-2 approved mode of operation
+// REF: https://docs.microsoft.com/en-us/windows/security/threat-protection/fips-140-validation
 
-    Abstract: 
+//.....................................................................................
+// Credit:
+// https://social.msdn.microsoft.com/Forums/vstudio/en-US/521b669d-09d8-46c9-812b-843b611f42e4/aescryptoserviceprovider-and-fips-mode
+//.....................................................................................
+
+Abstract: 
 
     Aes algorithm (the algorithm) is FIPS 140-2 compliant.
     Aes algorithm implementation by Microsoft (Enhanced Cryptographic Provider in rsaenh.dll) is also FIPS 140-2 compliant.
@@ -12,7 +17,7 @@
     AesManaged DOESN'T use rsaenh.dll CSP.
     AesManaged checks for FIPS mode and will throw an exception is FIPS compliance is turned on.
 
-    More:
+More:
 
     Strictly speaking it's not the AesCryptoServiceProvider or AesManaged that are FIPS 140-2 compliant.
     Its the underlying libraries accessed through the CAPI (like the Enhanced Cryptographic Provider in rsaenh.dll).
@@ -32,3 +37,5 @@
 
     Since rsaenh.dll is FIPS compliant, the AesCryptoServiceProvider will not throw such an exception. 
     After all, it is only a thin wrapper around the CAPI (advapi32.dll, crypt32.dll).
+
+
