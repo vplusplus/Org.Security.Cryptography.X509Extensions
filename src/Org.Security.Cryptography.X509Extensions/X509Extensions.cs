@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
@@ -17,6 +18,18 @@ namespace Org.Security.Cryptography
     /// </summary>
     public static class X509Extensions
     {
+        //...............................................................................
+        #region About TripleDESCryptoServiceProvider, Microsoft says:
+        //...............................................................................
+        // A newer symmetric encryption algorithm, Advanced Encryption Standard (AES), is available. 
+        // Consider using the Aes class and its derived classes instead of the TripleDES class. 
+        // Use TripleDES only for compatibility with legacy applications and data.
+        // const string DefaultDataEncryptionAlgorithm = "3DES";
+        // const int DefaultDataEncryptionKeySize = 128;
+        // const int DefaultDataEncryptionBlockSize = 64;
+
+        #endregion
+
         const string DefaultDataEncryptionAlgorithm = "Aes";
         const int DefaultDataEncryptionKeySize = 256;
         const int DefaultDataEncryptionBlockSize = 128;
@@ -220,6 +233,18 @@ namespace Org.Security.Cryptography
             if (bytesRead != 4) throw new Exception($"Unexpected end of stream. Expecting 4 bytes. Found {bytesRead} bytes.");
 
             return BitConverter.ToInt32(fourBytes, startIndex: 0);
+        }
+
+        /// <summary>
+        /// Because, .Net core doesn't honor TraceSwitches from the config files.
+        /// Try TraceSwitch "Org.Security.Cryptography" in config files.
+        /// If it doesn't work, update me.
+        /// </summary>
+        public static TraceLevel TraceLevel
+        {
+            set {
+                MyTrace.MyTraceSwitch = new TraceSwitch("", "", value.ToString());
+            }
         }
     }
 }

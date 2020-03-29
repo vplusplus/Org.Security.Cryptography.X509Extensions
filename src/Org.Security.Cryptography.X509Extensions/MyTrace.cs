@@ -11,8 +11,10 @@ namespace Org.Security.Cryptography
         // Trace switch name: Org.Security.Cryptography
         static readonly string MyName = typeof(MyTrace).Namespace;
 
-        // My trace switch.
-        static readonly TraceSwitch MyTraceSwitch = new TraceSwitch(MyName, MyName, $"{TraceLevel.Warning}");
+        // Making TraceSwitch update-able, because of the .Net core MESS (I meant, one of the .Net core messes)
+        // .Net core applications WILL NOT honor TraceSwitch in config files.
+        // Use X509Extensions.TraceLevel property
+        internal static TraceSwitch MyTraceSwitch { get; set; } = new TraceSwitch(MyName, MyName, $"{TraceLevel.Warning}");
 
         [Conditional("DEBUG")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -60,6 +62,7 @@ namespace Org.Security.Cryptography
                 {
                     buffer.AppendLine(err.Message);
                     buffer.AppendLine(err.GetType().FullName);
+                    err = err.InnerException;
                 }
 
                 // Stack trac of the top level error.
