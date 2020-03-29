@@ -20,35 +20,10 @@ namespace UnitTests
 
         const string CertThumbPrint = "2E3257EE8FC8A72DB3778DFB3F9EDC7D0A9D66C7";
 
-        static X509Certificate2 GetCert(string thumbprint, StoreName storeName = StoreName.My, StoreLocation storeLocation = StoreLocation.CurrentUser)
-        {
-            using (X509Store store = new X509Store(storeName, storeLocation))
-            {
-                store.Open(OpenFlags.ReadOnly | OpenFlags.OpenExistingOnly);
-
-                var certs = store
-                    .Certificates
-                    .Cast<X509Certificate2>()
-                    .Where(x => x.Thumbprint.Equals(CertThumbPrint, StringComparison.OrdinalIgnoreCase))
-                    .ToList();
-
-                //var certs = store.Certificates.Find(X509FindType.FindByThumbprint, thumbprint, validOnly: false);
-
-                if (1 == certs.Count) return certs[0];
-                else if (0 == certs.Count) throw new Exception($"X509Certificate not found: {storeLocation}/{storeName}/{thumbprint}");
-                else throw new Exception($"More than ONE X509Certificate found: {storeLocation}/{storeName}/{thumbprint}");
-            }
-        }
-
         [TestMethod]
         public void FindCertificateTest()
         {
-            // Verified that finding by thumbprints is case-IN-sensitive
-
-            var cert1 = GetCert(CertThumbPrint.ToLower(), StoreName.My, StoreLocation.CurrentUser);
-            var cert2 = GetCert(CertThumbPrint.ToUpper(), StoreName.My, StoreLocation.CurrentUser);
-
-            var cert = GetCert(CertThumbPrint);
+            var cert = X509CertificateCache.GetCertificate(CertThumbPrint, StoreName.My, StoreLocation.CurrentUser);
 
             Console.WriteLine($"Thumbprint: {cert.Thumbprint}");
             Console.WriteLine($"Subject: {cert.Subject}");
@@ -61,7 +36,7 @@ namespace UnitTests
         [TestMethod]
         public void X509_KEK_DEK_EncryptDecryptTest()
         {
-            X509Certificate2 cert = GetCert(CertThumbPrint) ?? throw new Exception("X509Certificate2 was NULL.");
+            var cert = X509CertificateCache.GetCertificate(CertThumbPrint, StoreName.My, StoreLocation.CurrentUser);
 
             const string TEST = "Hello World!";
 
@@ -105,8 +80,13 @@ namespace UnitTests
                 decryptedBytes = outputStream.ToArray();
             }
 
+            // Byte by byte comparison.
+            Assert.IsTrue(inputBytes.SequenceEqual(decryptedBytes));
+
+            // Recover original string
             var secondResult = Encoding.UTF8.GetString(decryptedBytes);
 
+            // Seeing is believing...
             Console.WriteLine($"Original: {TEST}");
             Console.WriteLine($"First Result:  {firstResult}");
             Console.WriteLine($"Second Result: {secondResult}");
@@ -118,7 +98,7 @@ namespace UnitTests
             // Dry run
             X509CertificateCache.GetCertificate(CertThumbPrint);
 
-            int loopCount = 1000;
+            int loopCount = 10000;
             var timer = Stopwatch.StartNew();
 
             for (int i = 0; i < loopCount; i++)
@@ -131,7 +111,7 @@ namespace UnitTests
             var elapsed = timer.Elapsed;
             Console.WriteLine($"LoopCount: {loopCount:#,0}");
             Console.WriteLine($"Elapsed: {elapsed.TotalMilliseconds:#,0} millSec");
-            Console.WriteLine($"Average: {elapsed.TotalMilliseconds/loopCount:#,0} millSec");
+            Console.WriteLine($"Average: {elapsed.TotalMilliseconds*1000.0/(float)loopCount:#,0.000} microSec");
         }
 
         [TestMethod]
@@ -140,7 +120,7 @@ namespace UnitTests
             const int SampleDataSizeInKB = 2;
 
             // Generate some random data
-            var SampleData = GenerateSampleData(SampleDataSizeInKB);
+            var SampleData = GenerateJunk(SampleDataSizeInKB);
 
             // Grab the cert
             var cert = X509CertificateCache.GetCertificate(CertThumbPrint);
@@ -195,11 +175,12 @@ namespace UnitTests
             }
         }
 
-        static byte[] GenerateSampleData(int kbs)
+        static byte[] GenerateJunk(int kiloBytes)
         {
-            using (var buffer = new MemoryStream(kbs * 1024))
+            int maxBytes = kiloBytes * 1024;
+
+            using (var buffer = new MemoryStream(maxBytes))
             {
-                int maxBytes = kbs * 1024;
                 var bytesWritten = 0;
 
                 while (bytesWritten < maxBytes)
@@ -213,7 +194,6 @@ namespace UnitTests
                 return buffer.ToArray();
             }
         }
-
 
     }
 }
