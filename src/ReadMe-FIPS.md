@@ -24,8 +24,7 @@ Is this package FIPS compliant? Depends.
 
 ## More
 
-Credit: 
-[https://social.msdn.microsoft.com/Forums/vstudio/en-US/521b669d-09d8-46c9-812b-843b611f42e4/aescryptoserviceprovider-and-fips-mode]
+Credit: [AesCryptoServiceProvider and FIPS mode](https://social.msdn.microsoft.com/Forums/vstudio/en-US/521b669d-09d8-46c9-812b-843b611f42e4/aescryptoserviceprovider-and-fips-mode)
 
 Aes algorithm (as in "the algorithm") is FIPS 140-2 compliant.
 Aes algorithm implementation by Microsoft (Enhanced Cryptographic Provider in rsaenh.dll) is also FIPS 140-2 compliant.
