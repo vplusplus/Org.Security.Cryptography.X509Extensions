@@ -30,49 +30,58 @@ namespace Org.Security.Cryptography
         /// </summary>
         public static void EncryptUsingPublicKey(this X509Certificate2 x509WithPublicKey, Stream inputStream, Stream outputStream, string dataEncryptionAlgorithmName = DefaultDataEncryptionAlgorithm, int keySize = DefaultDataEncryptionKeySize, int blockSize = DefaultDataEncryptionBlockSize)
         {
+            if (null == x509WithPublicKey) throw new ArgumentNullException(nameof(x509WithPublicKey));
             if (null == inputStream) throw new ArgumentNullException(nameof(inputStream));
             if (null == outputStream) throw new ArgumentNullException(nameof(outputStream));
-            if (null == x509WithPublicKey) throw new ArgumentNullException(nameof(x509WithPublicKey));
-            if (null == x509WithPublicKey.PublicKey) throw new ArgumentException("X509Certificate2.PublicKey was NULL.");
-            if (null == x509WithPublicKey.PublicKey.Key) throw new ArgumentException("X509Certificate2.PublicKey.Key was NULL.");
             if (null == dataEncryptionAlgorithmName) throw new ArgumentNullException(nameof(dataEncryptionAlgorithmName));
 
-            // IMP: We didn't create the Cert. DO NOT DISPOSE.
-            // IMP: Disposing the AsymmetricAlgorithm will render the X509Certificate2 useless for subsequent use.
-            AsymmetricAlgorithm keyEnryptionAlgorithm = x509WithPublicKey.PublicKey.Key;
+            MyTrace.Entering();
 
-            using (SymmetricAlgorithm dataEncryptionAlgorithm = SymmetricAlgorithm.Create(dataEncryptionAlgorithmName))
+            try
             {
-                if (null == dataEncryptionAlgorithm) throw new Exception($"SymmetricAlgorithm.Create('{dataEncryptionAlgorithmName}') returned NULL.");
+                if (null == x509WithPublicKey.PublicKey) throw new ArgumentException("X509Certificate2.PublicKey was NULL.");
+                if (null == x509WithPublicKey.PublicKey.Key) throw new ArgumentException("X509Certificate2.PublicKey.Key was NULL.");
 
-                dataEncryptionAlgorithm.KeySize = keySize;
-                dataEncryptionAlgorithm.BlockSize = blockSize;
+                // IMP: We didn't create the Cert. DO NOT DISPOSE.
+                // IMP: Disposing the AsymmetricAlgorithm will render the X509Certificate2 useless for subsequent use.
+                AsymmetricAlgorithm keyEncryptionAlgorithm = x509WithPublicKey.PublicKey.Key;
 
-                //Console.WriteLine($"KEK-Algorithm: {keyEnryptionAlgorithm.GetType().FullName}");
-                //Console.WriteLine($"KEK-KeySize: {keyEnryptionAlgorithm.KeySize} bits");
-                //Console.WriteLine($"DEK-Algorithm: {dataEncryptionAlgorithm.GetType().FullName}");
-                //Console.WriteLine($"DEK-KeySize: {dataEncryptionAlgorithm.KeySize} bits");
-                //Console.WriteLine($"DEK-BlockSize: {dataEncryptionAlgorithm.BlockSize} bits");
-
-                // The DataEncryptionKey and IV.
-                byte[] dataEncryptionKey = dataEncryptionAlgorithm.Key;
-                byte[] dataEncryptionIV = dataEncryptionAlgorithm.IV;
-
-                // Encrypt the DEK using the X509 public key (KEK).
-                var keyFormatter = new RSAPKCS1KeyExchangeFormatter(keyEnryptionAlgorithm);
-                byte[] encryptedDataEncryptionKey = keyFormatter.CreateKeyExchange(dataEncryptionKey);
-
-                // Write the length & bytes of encrypted DEK and IV
-                outputStream.WriteLengthAndBytes(encryptedDataEncryptionKey);
-                outputStream.WriteLengthAndBytes(dataEncryptionIV);
-
-                // Write Data
-                using (var transform = dataEncryptionAlgorithm.CreateEncryptor())
-                using (var encryptedOutputStream = new CryptoStream(outputStream, transform, CryptoStreamMode.Write))
+                using (SymmetricAlgorithm dataEncryptionAlgorithm = SymmetricAlgorithm.Create(dataEncryptionAlgorithmName))
                 {
-                    int bufferSize = dataEncryptionAlgorithm.BlockSize;
-                    inputStream.CopyTo(encryptedOutputStream, bufferSize);
+                    if (null == dataEncryptionAlgorithm) throw new Exception($"SymmetricAlgorithm.Create('{dataEncryptionAlgorithmName}') returned NULL.");
+
+                    dataEncryptionAlgorithm.KeySize = keySize;
+                    dataEncryptionAlgorithm.BlockSize = blockSize;
+
+                    // The DataEncryptionKey and IV.
+                    byte[] dataEncryptionKey = dataEncryptionAlgorithm.Key;
+                    byte[] dataEncryptionIV = dataEncryptionAlgorithm.IV;
+
+                    // Encrypt the DEK using the X509 public key (KEK).
+                    var keyFormatter = new RSAPKCS1KeyExchangeFormatter(keyEncryptionAlgorithm);
+                    byte[] encryptedDataEncryptionKey = keyFormatter.CreateKeyExchange(dataEncryptionKey);
+
+                    // Debug information (Set Trace to warning or above for PRD)
+                    MyTrace.Info(() => $"KEK: {keyEncryptionAlgorithm.GetType().Name} / {keyEncryptionAlgorithm.KeySize} bits / {x509WithPublicKey.Thumbprint}");
+                    MyTrace.Info(() => $"DEK: {dataEncryptionAlgorithm.GetType().Name} / {dataEncryptionAlgorithm.KeySize} bits. / BlockSize: {dataEncryptionAlgorithm.BlockSize} bits.");
+
+                    // Write the length & bytes of encrypted DEK and IV
+                    outputStream.WriteLengthAndBytes(encryptedDataEncryptionKey);
+                    outputStream.WriteLengthAndBytes(dataEncryptionIV);
+
+                    // Write Data
+                    using (var transform = dataEncryptionAlgorithm.CreateEncryptor())
+                    using (var cryptoStream = new CryptoStream(outputStream, transform, CryptoStreamMode.Write))
+                    {
+                        int bufferSize = dataEncryptionAlgorithm.BlockSize;
+                        inputStream.CopyTo(cryptoStream, bufferSize);
+                    }
                 }
+            }
+            catch (Exception err)
+            {
+                MyTrace.Error(err);
+                throw;
             }
         }
 
@@ -86,34 +95,55 @@ namespace Org.Security.Cryptography
             if (null == inputStream) throw new ArgumentNullException(nameof(inputStream));
             if (null == outputStream) throw new ArgumentNullException(nameof(outputStream));
             if (null == x509WithPrivateKey) throw new ArgumentNullException(nameof(x509WithPrivateKey));
-            if (null == x509WithPrivateKey.PrivateKey) throw new ArgumentException("X509Certificate2.PrivateKey was NULL.");
             if (null == dataEncryptionAlgorithmName) throw new ArgumentNullException(nameof(dataEncryptionAlgorithmName));
 
-            // IMP: We didn't create the Cert. DO NOT DISPOSE.
-            // IMP: Disposing the AsymmetricAlgorithm will render the X509Certificate2 useless for subsequent use.
-            AsymmetricAlgorithm keyEnryptionAlgorithm = x509WithPrivateKey.PrivateKey;
+            MyTrace.Entering();
 
             // Data Encryption key (DEK) is read from the stream.
             // DEK itself comes encrypted using the Key encryption key (KEK)
             // Use X509 cert private key to decrypt the DEK
             // Use the DEK to decrypt the data
 
-            byte[] encryptedDataEncryptionKey = inputStream.ReadLengthAndBytes();
-            byte[] dataEncryptionIV = inputStream.ReadLengthAndBytes();
-
-            using (SymmetricAlgorithm dataEncryptionAlgorithm = SymmetricAlgorithm.Create(dataEncryptionAlgorithmName))
+            try
             {
-                if (null == dataEncryptionAlgorithm) throw new Exception($"SymmetricAlgorithm.Create('{dataEncryptionAlgorithmName}') returned NULL.");
+                if (null == x509WithPrivateKey.PrivateKey) throw new ArgumentException("X509Certificate2.PrivateKey was NULL.");
 
-                RSAPKCS1KeyExchangeDeformatter keyDeFormatter = new RSAPKCS1KeyExchangeDeformatter(keyEnryptionAlgorithm);
-                byte[] dataEncryptionKey = keyDeFormatter.DecryptKeyExchange(encryptedDataEncryptionKey);
+                // IMP: We didn't create the Cert. DO NOT DISPOSE.
+                // IMP: Disposing the AsymmetricAlgorithm will render the X509Certificate2 useless for subsequent use.
+                AsymmetricAlgorithm keyEncryptionAlgorithm = x509WithPrivateKey.PrivateKey;
 
-                using (var transform = dataEncryptionAlgorithm.CreateDecryptor(dataEncryptionKey, dataEncryptionIV))
-                using (var decryptedInputStream = new CryptoStream(inputStream, transform, CryptoStreamMode.Read))
+                // Read the encrypted DataEncryptionKey and IV
+                byte[] encryptedDataEncryptionKey = inputStream.ReadLengthAndBytes();
+                byte[] dataEncryptionIV = inputStream.ReadLengthAndBytes();
+
+                using (SymmetricAlgorithm dataEncryptionAlgorithm = SymmetricAlgorithm.Create(dataEncryptionAlgorithmName))
                 {
-                    int bufferSize = dataEncryptionAlgorithm.BlockSize;
-                    decryptedInputStream.CopyTo(outputStream, bufferSize);
+                    if (null == dataEncryptionAlgorithm) throw new Exception($"SymmetricAlgorithm.Create('{dataEncryptionAlgorithmName}') returned NULL.");
+
+                    // Decrypt the DataEncryptionKey
+                    RSAPKCS1KeyExchangeDeformatter keyDeFormatter = new RSAPKCS1KeyExchangeDeformatter(keyEncryptionAlgorithm);
+                    byte[] dataEncryptionKey = keyDeFormatter.DecryptKeyExchange(encryptedDataEncryptionKey);
+
+                    dataEncryptionAlgorithm.Key = dataEncryptionKey;
+                    dataEncryptionAlgorithm.IV = dataEncryptionIV;
+
+                    // Debug information (Set Trace to warning or above for PRD)
+                    MyTrace.Info(() => $"KEK: {keyEncryptionAlgorithm.GetType().Name} / {keyEncryptionAlgorithm.KeySize} bits / {x509WithPrivateKey.Thumbprint}");
+                    MyTrace.Info(() => $"DEK: {dataEncryptionAlgorithm.GetType().Name} / {dataEncryptionAlgorithm.KeySize} bits. / BlockSize: {dataEncryptionAlgorithm.BlockSize} bits.");
+
+                    // Decrypt the data.
+                    using (var transform = dataEncryptionAlgorithm.CreateDecryptor())
+                    using (var cryptoStream = new CryptoStream(inputStream, transform, CryptoStreamMode.Read))
+                    {
+                        int bufferSize = dataEncryptionAlgorithm.BlockSize;
+                        cryptoStream.CopyTo(outputStream, bufferSize);
+                    }
                 }
+            }
+            catch (Exception err)
+            {
+                MyTrace.Error(err);
+                throw;
             }
         }
 
@@ -193,3 +223,4 @@ namespace Org.Security.Cryptography
         }
     }
 }
+
