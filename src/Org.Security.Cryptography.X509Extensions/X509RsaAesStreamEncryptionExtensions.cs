@@ -164,19 +164,19 @@ namespace Org.Security.Cryptography.X509RsaAes
             outputStream.Write(bytes, 0, bytes.Length);
         }
 
-        static byte[] ReadLengthAndBytes(this Stream outputStream)
+        static byte[] ReadLengthAndBytes(this Stream inputStream)
         {
-            if (null == outputStream) throw new ArgumentNullException(nameof(outputStream));
+            if (null == inputStream) throw new ArgumentNullException(nameof(inputStream));
 
             // Read an Int32, exactly four bytes.
             var arrLength = new byte[4];
-            var bytesRead = outputStream.Read(arrLength, 0, 4);
+            var bytesRead = inputStream.Read(arrLength, 0, 4);
             if (bytesRead != 4) throw new Exception("Unexpected end of InputStream. Expecting 4 bytes.");
 
             // Read suggested no of bytes...
             var length = BitConverter.ToInt32(arrLength, 0);
             var bytes = new byte[length];
-            bytesRead = outputStream.Read(bytes, 0, bytes.Length);
+            bytesRead = inputStream.Read(bytes, 0, bytes.Length);
             if (bytesRead != bytes.Length) throw new Exception($"Unexpected end of input stream. Expecting {bytes.Length:#,0} bytes.");
 
             return bytes;
