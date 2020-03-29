@@ -15,8 +15,8 @@ $cert = New-SelfSignedCertificate `
 	-DnsName $dnsName `
 	-CertStoreLocation Cert:\CurrentUser\My `
 	-KeyLength 1024 `
-    -KeyAlgorithm RSA
-    # -KeyExportPolicy Exportable
+	-KeyAlgorithm RSA
+	# -KeyExportPolicy Exportable
 	# -KeySpec KeyExchange 
 
 # Retrieve and show cert info

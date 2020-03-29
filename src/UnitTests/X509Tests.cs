@@ -116,7 +116,7 @@ namespace UnitTests
         public void BenchmarkX509CertLookup()
         {
             // Dry run
-            X509Cache.GetCertificate(CertThumbPrint);
+            X509CertificateCache.GetCertificate(CertThumbPrint);
 
             int loopCount = 1000;
             var timer = Stopwatch.StartNew();
@@ -124,7 +124,7 @@ namespace UnitTests
             for (int i = 0; i < loopCount; i++)
             {
                 // var ignoreMe = GetCert(CertThumbPrint);
-                X509Cache.GetCertificate(CertThumbPrint);
+                X509CertificateCache.GetCertificate(CertThumbPrint);
             }
 
             timer.Stop();
@@ -143,7 +143,7 @@ namespace UnitTests
             var SampleData = GenerateSampleData(SampleDataSizeInKB);
 
             // Grab the cert
-            var cert = X509Cache.GetCertificate(CertThumbPrint);
+            var cert = X509CertificateCache.GetCertificate(CertThumbPrint);
 
             // Dryrun
             var encryptedBytes = EncryptBytes(cert, SampleData);
