@@ -38,7 +38,7 @@ namespace Org.Security.Cryptography
         /// Disposing the certificate, for example, will leave a stale and useless X509Certificate2 instance in the cache.
         /// Throws an exception if requested certificate is NOT found. 
         /// </summary>
-        public static X509Certificate2 GetCertificate(string x509Thumbprint, StoreName storeName = StoreName.My, StoreLocation storeLocation = StoreLocation.CurrentUser, string cacheKeyPrefix = "/")
+        public static X509Certificate2 GetCertificate(string x509Thumbprint, StoreName storeName = StoreName.My, StoreLocation storeLocation = StoreLocation.CurrentUser, string cacheKeyPrefix = null)
         {
             if (string.IsNullOrWhiteSpace(x509Thumbprint)) throw new ArgumentException("x509Thumbprint was NULL or EMPTY.");
 
@@ -51,7 +51,7 @@ namespace Org.Security.Cryptography
         /// Disposing the certificate, for example, will leave a stale and useless X509Certificate2 instance in the cache.
         /// Returns the X509Certificate2 if found, else NULL.
         /// </summary>
-        public static X509Certificate2 TryGetCertificate(string x509Thumbprint, StoreName storeName = StoreName.My, StoreLocation storeLocation = StoreLocation.CurrentUser, string cacheKeyPrefix = "/")
+        public static X509Certificate2 TryGetCertificate(string x509Thumbprint, StoreName storeName = StoreName.My, StoreLocation storeLocation = StoreLocation.CurrentUser, string cacheKeyPrefix = null)
         {
             if (string.IsNullOrWhiteSpace(x509Thumbprint)) throw new ArgumentException("x509Thumbprint was NULL or EMPTY.");
 

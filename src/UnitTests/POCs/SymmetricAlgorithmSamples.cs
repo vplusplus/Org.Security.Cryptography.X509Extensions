@@ -8,24 +8,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace UnitTests.POCs
 {
-    // REF: https://docs.microsoft.com/en-us/windows/security/threat-protection/security-policy-settings/system-cryptography-use-fips-compliant-algorithms-for-encryption-hashing-and-signing
-
     [TestClass]
     public class SymmetricAlgorithmSamples
     {
-        static byte[] GiveMe256Bits()
-        {
-            // DO NOT USE for generating random keys in PRD
-            var something = Guid.NewGuid().ToByteArray();
-            using (var sha = SHA256.Create()) return sha.ComputeHash(something);
-        }
-
-        static byte[] GiveMe128Bits()
-        {
-            // DO NOT USE for generating random keys in PRD
-            return Guid.NewGuid().ToByteArray();
-        }
-
         [TestMethod]
         public void AES_GenerateKeyAndIv()
         {
@@ -140,14 +125,17 @@ namespace UnitTests.POCs
             Console.WriteLine($"Final: {final}");
         }
 
+        static byte[] GiveMe256Bits()
+        {
+            // DO NOT USE for generating random keys in PRD
+            var something = Guid.NewGuid().ToByteArray();
+            using (var sha = SHA256.Create()) return sha.ComputeHash(something);
+        }
+
+        static byte[] GiveMe128Bits()
+        {
+            // DO NOT USE for generating random keys in PRD
+            return Guid.NewGuid().ToByteArray();
+        }
     }
 }
-
-
-// System.InvalidCastException
-//HResult=0x80004002
-//  Message=Unable to cast object of type 'System.Security.Cryptography.RSACng' to type 'System.Security.Cryptography.RSACryptoServiceProvider'.
-//  Source=UnitTests
-//  StackTrace:
-//   at UnitTests.POCs.X509Samples.X509_EncryptDecryptTest() in D:\Source\Org.Runtime.Configuration\src\SharedConfig\UnitTests\POCs\X509Samples.cs:line 52
-

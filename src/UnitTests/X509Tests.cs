@@ -7,7 +7,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using Org.Security.Cryptography;
+using Org.Security.Cryptography.X509RsaAes;
 
 namespace UnitTests
 {
@@ -20,11 +20,10 @@ namespace UnitTests
 
         const string CertThumbPrint = "2E3257EE8FC8A72DB3778DFB3F9EDC7D0A9D66C7";
 
-
         [TestMethod]
         public void FindCertificateTest()
         {
-            var cert = X509CertificateCache.GetCertificate(CertThumbPrint, StoreName.My, StoreLocation.CurrentUser);
+            var cert = Org.Security.Cryptography.X509CertificateCache.GetCertificate(CertThumbPrint, StoreName.My, StoreLocation.CurrentUser);
 
             Console.WriteLine($"Thumbprint: {cert.Thumbprint}");
             Console.WriteLine($"Subject: {cert.Subject}");
@@ -35,160 +34,37 @@ namespace UnitTests
         }
 
         [TestMethod]
-        public void X509_KEK_DEK_EncryptDecryptTest()
+        public void X509RsaAes_TripleRoundTripTest()
         {
-            var cert = X509CertificateCache.GetCertificate(CertThumbPrint, StoreName.My, StoreLocation.CurrentUser);
-
             const string TEST = "Hello World!";
 
-            byte[] inputBytes = Encoding.UTF8.GetBytes(TEST);
-            byte[] encryptedBytes = null;
-            byte[] decryptedBytes = null;
+            byte[] input   = Encoding.UTF8.GetBytes(TEST);
+            byte[] output1 = DecryptBytes(EncryptBytes(input, CertThumbPrint), CertThumbPrint);
+            byte[] output2 = DecryptBytes(EncryptBytes(output1, CertThumbPrint), CertThumbPrint);
+            byte[] output3 = DecryptBytes(EncryptBytes(output2, CertThumbPrint), CertThumbPrint);
 
-            using (var inputStream = new MemoryStream(inputBytes))
-            using (var outputStream = new MemoryStream(1024))
-            {
-                cert.EncryptUsingPublicKey(inputStream, outputStream);
-                outputStream.Flush();
-                encryptedBytes = outputStream.ToArray();
-            }
-
-            using (var inputStream = new MemoryStream(encryptedBytes))
-            using (var outputStream = new MemoryStream(1024))
-            {
-                cert.DecryptUsingPrivateKey(inputStream, outputStream);
-                outputStream.Flush();
-                decryptedBytes = outputStream.ToArray();
-            }
-
-            var firstResult = Encoding.UTF8.GetString(decryptedBytes);
-
-            inputBytes = Encoding.UTF8.GetBytes(firstResult);
-
-            using (var inputStream = new MemoryStream(inputBytes))
-            using (var outputStream = new MemoryStream(1024))
-            {
-                cert.EncryptUsingPublicKey(inputStream, outputStream);
-                outputStream.Flush();
-                encryptedBytes = outputStream.ToArray();
-            }
-
-            using (var inputStream = new MemoryStream(encryptedBytes))
-            using (var outputStream = new MemoryStream(1024))
-            {
-                cert.DecryptUsingPrivateKey(inputStream, outputStream);
-                outputStream.Flush();
-                decryptedBytes = outputStream.ToArray();
-            }
-
-            // Byte by byte comparison.
-            Assert.IsTrue(inputBytes.SequenceEqual(decryptedBytes));
-
-            // Recover original string
-            var secondResult = Encoding.UTF8.GetString(decryptedBytes);
+            Assert.IsTrue(input.SequenceEqual(output1));
+            Assert.IsTrue(input.SequenceEqual(output2));
+            Assert.IsTrue(input.SequenceEqual(output3));
 
             // Seeing is believing...
             Console.WriteLine($"Original: {TEST}");
-            Console.WriteLine($"First Result:  {firstResult}");
-            Console.WriteLine($"Second Result: {secondResult}");
+            Console.WriteLine($"#1 {Encoding.UTF8.GetString(output1)}");
+            Console.WriteLine($"#2 {Encoding.UTF8.GetString(output2)}");
+            Console.WriteLine($"#3 {Encoding.UTF8.GetString(output3)}");
         }
 
         [TestMethod]
-        public void X509_RSA_AES_Test()
-        {
-            var cert = X509CertificateCache.GetCertificate(CertThumbPrint, StoreName.My, StoreLocation.CurrentUser);
-
-            const string TEST = "Hello World!";
-
-            byte[] inputBytes = Encoding.UTF8.GetBytes(TEST);
-            byte[] encryptedBytes = null;
-            byte[] decryptedBytes = null;
-
-            using (var inputStream = new MemoryStream(inputBytes))
-            using (var outputStream = new MemoryStream(1024))
-            {
-                inputStream.Encrypt(outputStream, CertThumbPrint, StoreName.My, StoreLocation.CurrentUser);
-                outputStream.Flush();
-                encryptedBytes = outputStream.ToArray();
-            }
-
-            using (var inputStream = new MemoryStream(encryptedBytes))
-            using (var outputStream = new MemoryStream(1024))
-            {
-                inputStream.Decrypt(outputStream, CertThumbPrint, StoreName.My, StoreLocation.CurrentUser);
-                outputStream.Flush();
-                decryptedBytes = outputStream.ToArray();
-            }
-
-            var firstResult = Encoding.UTF8.GetString(decryptedBytes);
-
-            inputBytes = Encoding.UTF8.GetBytes(firstResult);
-
-            using (var inputStream = new MemoryStream(inputBytes))
-            using (var outputStream = new MemoryStream(1024))
-            {
-                inputStream.Encrypt(outputStream, CertThumbPrint, StoreName.My, StoreLocation.CurrentUser);
-                outputStream.Flush();
-                encryptedBytes = outputStream.ToArray();
-            }
-
-            using (var inputStream = new MemoryStream(encryptedBytes))
-            using (var outputStream = new MemoryStream(1024))
-            {
-                inputStream.Decrypt(outputStream, CertThumbPrint, StoreName.My, StoreLocation.CurrentUser);
-                outputStream.Flush();
-                decryptedBytes = outputStream.ToArray();
-            }
-
-            // Byte by byte comparison.
-            Assert.IsTrue(inputBytes.SequenceEqual(decryptedBytes));
-
-            // Recover original string
-            var secondResult = Encoding.UTF8.GetString(decryptedBytes);
-
-            // Seeing is believing...
-            Console.WriteLine($"Original: {TEST}");
-            Console.WriteLine($"First Result:  {firstResult}");
-            Console.WriteLine($"Second Result: {secondResult}");
-        }
-
-
-        [TestMethod]
-        public void BenchmarkX509CertLookup()
-        {
-            // Dry run
-            X509CertificateCache.GetCertificate(CertThumbPrint);
-
-            int loopCount = 10000;
-            var timer = Stopwatch.StartNew();
-
-            for (int i = 0; i < loopCount; i++)
-            {
-                // var ignoreMe = GetCert(CertThumbPrint);
-                X509CertificateCache.GetCertificate(CertThumbPrint);
-            }
-
-            timer.Stop();
-            var elapsed = timer.Elapsed;
-            Console.WriteLine($"LoopCount: {loopCount:#,0}");
-            Console.WriteLine($"Elapsed: {elapsed.TotalMilliseconds:#,0} millSec");
-            Console.WriteLine($"Average: {elapsed.TotalMilliseconds*1000.0/(float)loopCount:#,0.000} microSec");
-        }
-
-        [TestMethod]
-        public void BenchmarkX509EncryptionAndDecryption()
+        public void X509RsaAes_BenchmarkEncryptionAndDecryption()
         {
             const int SampleDataSizeInKB = 2;
 
             // Generate some random data
             var SampleData = GenerateJunk(SampleDataSizeInKB);
 
-            // Grab the cert
-            var cert = X509CertificateCache.GetCertificate(CertThumbPrint);
-
             // Dryrun
-            var encryptedBytes = EncryptBytes(cert, SampleData);
-            var decryptedBytes = DecryptBytes(cert, encryptedBytes);
+            var encryptedBytes = EncryptBytes(SampleData, CertThumbPrint);
+            var decryptedBytes = DecryptBytes(encryptedBytes, CertThumbPrint);
 
             var same = decryptedBytes.SequenceEqual(SampleData);
             if (!same) throw new Exception("Decrypted data doesn't match original data");
@@ -202,8 +78,8 @@ namespace UnitTests
             var timer = Stopwatch.StartNew();
             for (int i=0; i<LOOP_COUNT; i++)
             {
-                encryptedBytes = EncryptBytes(cert, SampleData);
-                //decryptedBytes = DecryptBytes(cert, encryptedBytes);
+                encryptedBytes = EncryptBytes(SampleData, CertThumbPrint);
+                //decryptedBytes = DecryptBytes(encryptedBytes, CertThumbPrint);
 
             }
             timer.Stop();
@@ -214,23 +90,23 @@ namespace UnitTests
             Console.WriteLine($"Average: {elapsed.TotalMilliseconds / (long)LOOP_COUNT:#,0.000} millSec");
         }
 
-        byte[] EncryptBytes(X509Certificate2 cert, byte[] inputData)
+        byte[] EncryptBytes(byte[] inputData, string thumbprint, StoreName storeName = StoreName.My, StoreLocation storeLocation = StoreLocation.CurrentUser)
         {
             using (var input = new MemoryStream(inputData))
             using (var output = new MemoryStream(inputData.Length))
             {
-                cert.EncryptUsingPublicKey(input, output);
+                input.Encrypt(output, thumbprint, storeName, storeLocation);
                 output.Flush();
                 return output.ToArray();
             }
         }
 
-        byte[] DecryptBytes(X509Certificate2 cert, byte[] inputData)
+        byte[] DecryptBytes(byte[] inputData, string thumbprint, StoreName storeName = StoreName.My, StoreLocation storeLocation = StoreLocation.CurrentUser)
         {
             using (var input = new MemoryStream(inputData))
             using (var output = new MemoryStream(inputData.Length))
             {
-                cert.DecryptUsingPrivateKey(input, output);
+                input.Decrypt(output, thumbprint, storeName, storeLocation);
                 output.Flush();
                 return output.ToArray();
             }
