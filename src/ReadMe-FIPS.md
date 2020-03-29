@@ -15,7 +15,7 @@ Is this package FIPS compliant? Depends.
 * [Use FIPS compliant algorithms for encryption, hashing, and signing](https://docs.microsoft.com/en-us/windows/security/threat-protection/security-policy-settings/system-cryptography-use-fips-compliant-algorithms-for-encryption-hashing-and-signing)  
 * [Why We’re Not Recommending FIPS Mode Anymore](https://docs.microsoft.com/en-us/archive/blogs/secguide/why-were-not-recommending-fips-mode-anymore)  
 
-> ### FIPS Mode:
+### Windows FIPS Mode
 > This policy setting determines whether the TLS/SSL security provider supports only the FIPS-compliant strong cipher suite known as TLS_RSA_WITH_3DES_EDE_CBC_SHA, which means that 
 > * the provider only supports the TLS protocol as a client computer and as a server, if applicable. 
 > * uses only the Triple Data Encryption Standard (3DES) encryption algorithm for the TLS traffic encryption, 
@@ -24,7 +24,8 @@ Is this package FIPS compliant? Depends.
 
 ## More
 
-Credit: [https://social.msdn.microsoft.com/Forums/vstudio/en-US/521b669d-09d8-46c9-812b-843b611f42e4/aescryptoserviceprovider-and-fips-mode]
+Credit: 
+[https://social.msdn.microsoft.com/Forums/vstudio/en-US/521b669d-09d8-46c9-812b-843b611f42e4/aescryptoserviceprovider-and-fips-mode]
 
 Aes algorithm (as in "the algorithm") is FIPS 140-2 compliant.
 Aes algorithm implementation by Microsoft (Enhanced Cryptographic Provider in rsaenh.dll) is also FIPS 140-2 compliant.
