@@ -1,5 +1,10 @@
 ﻿
-$dnsName = "hello.world.3"
+# Use of self-signed=certs is NOT recommonded for real world application workloads.
+# The helpers below can be used at best for 
+# Local development and unit testing 
+# Strictly server-to-server communication with no user-intervention with-in a controlled private network in NON production usecases.
+
+$dnsName = "org.poc.myapplication"
 $outputPath = "D:\Junk"
 
 # Collect password for the PFX file. Username is ignored.
