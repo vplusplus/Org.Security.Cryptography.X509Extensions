@@ -128,7 +128,7 @@ namespace Org.Security.Cryptography.X509RsaAes
             using (var transform = dataEncryption.CreateEncryptor())
             using (var cryptoStream = new CryptoStream(outputStream, transform, CryptoStreamMode.Write))
             {
-                inputStream.CopyTo(cryptoStream, dataEncryption.BlockSize);
+                inputStream.CopyTo(cryptoStream, bufferSize: dataEncryption.BlockSize * 4);
             }
         }
 
@@ -149,7 +149,7 @@ namespace Org.Security.Cryptography.X509RsaAes
             using (var transform = dataEncryption.CreateDecryptor())
             using (var cryptoStream = new CryptoStream(inputStream, transform, CryptoStreamMode.Read))
             {
-                cryptoStream.CopyTo(outputStream, dataEncryption.BlockSize);
+                cryptoStream.CopyTo(outputStream, bufferSize: dataEncryption.BlockSize * 4);
             }
         }
 
@@ -181,22 +181,5 @@ namespace Org.Security.Cryptography.X509RsaAes
 
             return bytes;
         }
-
-        static void CopyTo(this Stream inputStream, Stream outputStream, int bufferSize)
-        {
-            if (null == inputStream) throw new ArgumentNullException(nameof(inputStream));
-            if (null == outputStream) throw new ArgumentNullException(nameof(outputStream));
-            if (bufferSize <= 0) throw new ArgumentException("Invalid buffer size. Must be > 0");
-
-            byte[] buffer = new byte[bufferSize];
-            int bytesRead = 0;
-
-            do {
-                bytesRead = inputStream.Read(buffer, 0, buffer.Length);
-                if (bytesRead > 0) outputStream.Write(buffer, 0, bytesRead);
-            }
-            while (bytesRead > 0);
-        }
-
     }
 }
