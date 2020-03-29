@@ -94,6 +94,66 @@ namespace UnitTests
         }
 
         [TestMethod]
+        public void X509_RSA_AES_Test()
+        {
+            var cert = X509CertificateCache.GetCertificate(CertThumbPrint, StoreName.My, StoreLocation.CurrentUser);
+
+            const string TEST = "Hello World!";
+
+            byte[] inputBytes = Encoding.UTF8.GetBytes(TEST);
+            byte[] encryptedBytes = null;
+            byte[] decryptedBytes = null;
+
+            using (var inputStream = new MemoryStream(inputBytes))
+            using (var outputStream = new MemoryStream(1024))
+            {
+                inputStream.Encrypt(outputStream, CertThumbPrint, StoreName.My, StoreLocation.CurrentUser);
+                outputStream.Flush();
+                encryptedBytes = outputStream.ToArray();
+            }
+
+            using (var inputStream = new MemoryStream(encryptedBytes))
+            using (var outputStream = new MemoryStream(1024))
+            {
+                inputStream.Decrypt(outputStream, CertThumbPrint, StoreName.My, StoreLocation.CurrentUser);
+                outputStream.Flush();
+                decryptedBytes = outputStream.ToArray();
+            }
+
+            var firstResult = Encoding.UTF8.GetString(decryptedBytes);
+
+            inputBytes = Encoding.UTF8.GetBytes(firstResult);
+
+            using (var inputStream = new MemoryStream(inputBytes))
+            using (var outputStream = new MemoryStream(1024))
+            {
+                inputStream.Encrypt(outputStream, CertThumbPrint, StoreName.My, StoreLocation.CurrentUser);
+                outputStream.Flush();
+                encryptedBytes = outputStream.ToArray();
+            }
+
+            using (var inputStream = new MemoryStream(encryptedBytes))
+            using (var outputStream = new MemoryStream(1024))
+            {
+                inputStream.Decrypt(outputStream, CertThumbPrint, StoreName.My, StoreLocation.CurrentUser);
+                outputStream.Flush();
+                decryptedBytes = outputStream.ToArray();
+            }
+
+            // Byte by byte comparison.
+            Assert.IsTrue(inputBytes.SequenceEqual(decryptedBytes));
+
+            // Recover original string
+            var secondResult = Encoding.UTF8.GetString(decryptedBytes);
+
+            // Seeing is believing...
+            Console.WriteLine($"Original: {TEST}");
+            Console.WriteLine($"First Result:  {firstResult}");
+            Console.WriteLine($"Second Result: {secondResult}");
+        }
+
+
+        [TestMethod]
         public void BenchmarkX509CertLookup()
         {
             // Dry run

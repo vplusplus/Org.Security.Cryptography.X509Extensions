@@ -33,3 +33,31 @@ RSA, DSA, Diffe-Hellman
 AES algorithm can support any combination of data (128 bits) and key length of 128, 192, and 256 bits. 
 The algorithm is referred to as AES-128, AES-192, or AES-256, depending on the key length.
 
+
+AsymmetricAlgorithm
+	DSA
+		DSACng
+		DSACryptoServiceProvider
+		DSAOpenSsl
+	ECDiffieHellman
+		ECDiffieHellmanCng
+		ECDiffieHellmanOpenSsl
+	ECDsa
+		ECDsaCng
+		ECDsaOpenSsl
+	RSA
+		RSACng
+		RSACryptoServiceProvider
+		RSAOpenSsl
+
+SymmetricAlgorithm
+	Aes
+		AesCng
+		AesCryptoServiceProvider
+		AesManaged
+	Rijndael
+		RijndaelManaged
+			
+
+* The Rijndael class is the predecessor of the Aes algorithm. You should use the Aes algorithm instead of Rijndael
+
