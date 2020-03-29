@@ -98,8 +98,8 @@ namespace Org.Security.Cryptography
             // Use X509 cert private key to decrypt the DEK
             // Use the DEK to decrypt the data
 
-            byte[] encryptedDataEncryptionKey = ReadLengthAndBytes(inputStream);
-            byte[] dataEncryptionIV = ReadLengthAndBytes(inputStream);
+            byte[] encryptedDataEncryptionKey = inputStream.ReadLengthAndBytes();
+            byte[] dataEncryptionIV = inputStream.ReadLengthAndBytes();
 
             using (SymmetricAlgorithm dataEncryptionAlgorithm = SymmetricAlgorithm.Create(dataEncryptionAlgorithmName))
             {
@@ -125,6 +125,7 @@ namespace Org.Security.Cryptography
         {
             if (null == inputStream) throw new ArgumentNullException(nameof(inputStream));
             if (null == outputStream) throw new ArgumentNullException(nameof(outputStream));
+            if (bufferSize <= 0) throw new ArgumentException("Invalid buffer size; Must be > 0");
 
             byte[] buffer = new byte[bufferSize];
             int bytesRead = 0;
