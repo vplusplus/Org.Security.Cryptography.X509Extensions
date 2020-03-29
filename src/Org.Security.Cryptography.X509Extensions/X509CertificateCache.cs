@@ -103,25 +103,28 @@ namespace Org.Security.Cryptography
                 var certs = store
                     .Certificates
                     .Cast<X509Certificate2>()
+                    .Where(x => null != x && null != x.Thumbprint)
                     .Where(x => x.Thumbprint.Equals(x509Thumbprint, StringComparison.OrdinalIgnoreCase))
                     .ToArray();
 
                 if (1 == certs.Length)
                 {
-                    // Found ONE...
-                    CertificateCache[cacheKey] = certs[0] ?? throw new Exception($"X509Store returned a NULL X509Certificate2 instance: {storeLocation}/{storeName}/{x509Thumbprint}");
-                    return certs[0];
+                    // Found ONE. Cache and return.
+                    return (CertificateCache[cacheKey] = certs[0]);
                 }
-                else if (certs.Length > 1)
+                else if (0 == certs.Length)
                 {
-                    // We are looking-up by ThumbPrint. This won't happen, just in case...
-                    throw new Exception($"Found more than ONE X509Certificate: {storeLocation}/{storeName}/{x509Thumbprint}");
+                    // Not found. 
+                    // Don't update the cache.
+                    // This is a TryGet() call; Return NULL.
+                    return null;
                 }
                 else
                 {
-                    // Not found. Don't update the cache, yet.
-                    // This TryGet() call. Return NULL.
-                    return null;
+                    // Found more than one cert with the thumbprint.
+                    // We are looking-up by ThumbPrint. 
+                    // This won't happen, just in case...
+                    throw new Exception($"Found more than ONE X509Certificate: {storeLocation}/{storeName}/{x509Thumbprint}");
                 }
             }
         }
