@@ -147,8 +147,8 @@ namespace Org.Security.Cryptography
             if (null == keyEncryption) throw new ArgumentNullException(nameof(keyEncryption));
             if (null == dataEncryption) throw new ArgumentNullException(nameof(dataEncryption));
 
-            var encryptedDEK = inputStream.ReadLengthAndBytes();
-            var encryptedIV = inputStream.ReadLengthAndBytes();
+            var encryptedDEK = inputStream.ReadLengthAndBytes(maxBytes: 2048);
+            var encryptedIV = inputStream.ReadLengthAndBytes(maxBytes: 2048);
 
             var keyDeformatter = new RSAPKCS1KeyExchangeDeformatter(keyEncryption);
             dataEncryption.Key = keyDeformatter.DecryptKeyExchange(encryptedDEK);
@@ -176,7 +176,7 @@ namespace Org.Security.Cryptography
             outputStream.Write(bytes, 0, bytes.Length);
         }
 
-        static byte[] ReadLengthAndBytes(this Stream inputStream)
+        static byte[] ReadLengthAndBytes(this Stream inputStream, int maxBytes)
         {
             if (null == inputStream) throw new ArgumentNullException(nameof(inputStream));
 
@@ -185,8 +185,11 @@ namespace Org.Security.Cryptography
             var bytesRead = inputStream.Read(arrLength, 0, 4);
             if (bytesRead != 4) throw new Exception("Unexpected end of InputStream. Expecting 4 bytes.");
 
-            // Read suggested no of bytes...
+            // Length of data to read.
             var length = BitConverter.ToInt32(arrLength, 0);
+            if (length > maxBytes) throw new Exception($"Unexpected data size {length:#,0} bytes. Expexting not more than {maxBytes:#,0} bytes.");
+
+            // Read suggested no of bytes...
             var bytes = new byte[length];
             bytesRead = inputStream.Read(bytes, 0, bytes.Length);
             if (bytesRead != bytes.Length) throw new Exception($"Unexpected end of input stream. Expecting {bytes.Length:#,0} bytes.");
