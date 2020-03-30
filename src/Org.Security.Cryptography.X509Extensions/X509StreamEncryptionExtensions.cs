@@ -187,7 +187,7 @@ namespace Org.Security.Cryptography
 
             // Length of data to read.
             var length = BitConverter.ToInt32(arrLength, 0);
-            if (length > maxBytes) throw new Exception($"Unexpected data size {length:#,0} bytes. Expexting not more than {maxBytes:#,0} bytes.");
+            if (length > maxBytes) throw new Exception($"Unexpected data size {length:#,0} bytes. Expecting not more than {maxBytes:#,0} bytes.");
 
             // Read suggested no of bytes...
             var bytes = new byte[length];
