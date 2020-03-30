@@ -79,8 +79,7 @@ namespace Org.Security.Cryptography
             // NOTE: Cache is ThreadStatic. It may not yet exist on this thread.
             CertificateCache = CertificateCache ?? new Dictionary<string, X509Certificate2>(StringComparer.OrdinalIgnoreCase);
 
-            // Unique key based on store location, name and thumbprint.
-            // Optional cacheKeyPrefix if given use-case do not want to share the instance with other callers.
+            // Unique key based on prefix, location, store and thumbprint.
             cacheKeyPrefix = cacheKeyPrefix ?? "default";
             var cacheKey = $"{cacheKeyPrefix}/{storeLocation}/{storeName}/{x509Thumbprint}";
 
@@ -98,7 +97,7 @@ namespace Org.Security.Cryptography
                 var certs = store
                     .Certificates
                     .Cast<X509Certificate2>()
-                    .Where(x => null != x && null != x.Thumbprint)
+                    .Where(x => null != x?.Thumbprint)
                     .Where(x => x.Thumbprint.Equals(x509Thumbprint, StringComparison.OrdinalIgnoreCase))
                     .ToArray();
 
