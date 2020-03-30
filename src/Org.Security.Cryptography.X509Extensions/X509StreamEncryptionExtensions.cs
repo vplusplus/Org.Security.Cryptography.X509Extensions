@@ -116,8 +116,8 @@ namespace Org.Security.Cryptography
             if (null == dataEncryption) throw new ArgumentNullException(nameof(dataEncryption));
 
             // About...
-            Trace.WriteLine($"Encrypting-KEK: {keyEncryption.GetType().Name} / {keyEncryption.KeySize} bits");
-            Trace.WriteLine($"Encrypting-DEK: {dataEncryption.GetType().Name} / {dataEncryption.KeySize} bits / BlockSize: {dataEncryption.BlockSize} bits");
+            // Trace.WriteLine($"Encrypting. KEK: {keyEncryption.GetType().Name} / {keyEncryption.KeySize} bits");
+            // Trace.WriteLine($"Encrypting. DEK: {dataEncryption.GetType().Name} / {dataEncryption.KeySize} bits / BlockSize: {dataEncryption.BlockSize} bits");
 
             // The DataEncryptionKey and the IV.
             var DEK = dataEncryption.Key ?? throw new Exception("SymmetricAlgorithm.Key was NULL");
@@ -155,8 +155,8 @@ namespace Org.Security.Cryptography
             dataEncryption.IV = keyDeformatter.DecryptKeyExchange(encryptedIV);
 
             // About...
-            Trace.WriteLine($"Decrypting-KEK: {keyEncryption.GetType().Name} / {keyEncryption.KeySize} bits");
-            Trace.WriteLine($"Decrypting-DEK: {dataEncryption.GetType().Name} / {dataEncryption.KeySize} bits / BlockSize: {dataEncryption.BlockSize} bits");
+            // Trace.WriteLine($"Decrypting. KEK: {keyEncryption.GetType().Name} / {keyEncryption.KeySize} bits");
+            // Trace.WriteLine($"Decrypting. DEK: {dataEncryption.GetType().Name} / {dataEncryption.KeySize} bits / BlockSize: {dataEncryption.BlockSize} bits");
 
             using (var transform = dataEncryption.CreateDecryptor())
             using (var cryptoStream = new CryptoStream(inputStream, transform, CryptoStreamMode.Read))
