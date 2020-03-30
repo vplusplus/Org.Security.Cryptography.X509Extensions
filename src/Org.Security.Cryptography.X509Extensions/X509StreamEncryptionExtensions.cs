@@ -1,21 +1,22 @@
 ﻿
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 
-namespace Org.Security.Cryptography.X509RsaAes
+namespace Org.Security.Cryptography
 {
     /// <summary>
     /// Extensions to encrypt/decrypt Streams using X509 Certificates.
-    /// Expects X509 RSA Certificate. 
-    /// Uses AES-256 with 128bit blockSize for Data encryption.
+    /// By default, uses AES-256/128 for Data encryption.
     /// </summary>
-    public static class X509RsaAesStreamEncryptionExtensions
+    public static class X509StreamEncryptionExtensions
     {
-        // Not confgurable, to avoid provider/consumer mis-configuration
-        const int AesKeySize = 256;
-        const int AesBlockSize = 128;
+        // Defaults
+        const string    DEF_AlgName     = "Aes";
+        const int       DEF_KeySize     = 256;
+        const int       DEF_BlockSize   = 128;
 
         // Random prefix, for a private slice of X509 Cache.
         static readonly string X509CachePrefix = Guid.NewGuid().ToString();
@@ -25,15 +26,18 @@ namespace Org.Security.Cryptography.X509RsaAes
         /// Data is encrypted using a randomly generated DataEncryptionKey and IV.
         /// Writes encrypted DataEncryptionKey (using KEK), encrypted IV (using KEK) and encrypted data (using DEK) to the output stream.
         /// </summary>
-        public static void Encrypt(this Stream inputStream, Stream outputStream, string thumbPrint, StoreName storeName, StoreLocation storeLocation)
+        public static void Encrypt(this Stream inputStream, Stream outputStream, string thumbPrint, StoreName storeName, StoreLocation storeLocation, string algName = DEF_AlgName, int keySize = DEF_KeySize, int blockSize = DEF_BlockSize)
         {
             if (null == inputStream) throw new ArgumentNullException(nameof(inputStream));
             if (null == outputStream) throw new ArgumentNullException(nameof(outputStream));
             if (null == thumbPrint) throw new ArgumentNullException(nameof(thumbPrint));
+            if (null == algName) throw new ArgumentNullException(nameof(algName));
 
-            var cert = X509CertificateCache.GetCertificate(thumbPrint, storeName, storeLocation, X509CachePrefix);
-
-            inputStream.Encrypt(outputStream, cert);
+            Encrypt(
+                inputStream, outputStream,
+                X509CertificateCache.GetCertificate(thumbPrint, storeName, storeLocation, X509CachePrefix),
+                algName: algName, keySize: keySize, blockSize: blockSize
+            );
         }
 
         /// <summary>
@@ -41,15 +45,18 @@ namespace Org.Security.Cryptography.X509RsaAes
         /// Reads and decrypts the Encrypted DataEncryptionKey and Encrypted IV using the KEK.
         /// Decrypts the data using the DataEncryptionKey and IV. 
         /// </summary>
-        public static void Decrypt(this Stream inputStream, Stream outputStream, string thumbPrint, StoreName storeName, StoreLocation storeLocation)
+        public static void Decrypt(this Stream inputStream, Stream outputStream, string thumbPrint, StoreName storeName, StoreLocation storeLocation, string algName = DEF_AlgName)
         {
             if (null == inputStream) throw new ArgumentNullException(nameof(inputStream));
             if (null == outputStream) throw new ArgumentNullException(nameof(outputStream));
             if (null == thumbPrint) throw new ArgumentNullException(nameof(thumbPrint));
+            if (null == algName) throw new ArgumentNullException(nameof(algName));
 
-            var cert = X509CertificateCache.GetCertificate(thumbPrint, storeName, storeLocation, X509CachePrefix);
-
-            inputStream.Decrypt(outputStream, cert);
+            Decrypt(
+                inputStream, outputStream,
+                X509CertificateCache.GetCertificate(thumbPrint, storeName, storeLocation, X509CachePrefix),
+                algName
+            );
         }
 
         /// <summary>
@@ -57,26 +64,24 @@ namespace Org.Security.Cryptography.X509RsaAes
         /// Data is encrypted using a randomly generated DataEncryptionKey and IV.
         /// Writes encrypted DataEncryptionKey (using KEK), encrypted IV (using KEK) and encrypted data (using DEK) to the output stream.
         /// </summary>
-        public static void Encrypt(this Stream inputStream, Stream outputStream, X509Certificate2 cert)
+        public static void Encrypt(this Stream inputStream, Stream outputStream, X509Certificate2 cert, string algName = DEF_AlgName, int keySize = DEF_KeySize, int blockSize = DEF_BlockSize)
         {
             if (null == inputStream) throw new ArgumentNullException(nameof(inputStream));
             if (null == outputStream) throw new ArgumentNullException(nameof(outputStream));
             if (null == cert) throw new ArgumentNullException(nameof(cert));
+            if (null == algName) throw new ArgumentNullException(nameof(algName));
 
-            // Ensure PublicKey exists and supports RSA
-            if (null == cert.PublicKey) throw new ArgumentNullException($"X509Certificate2.PublicKey was NULL: {cert.Thumbprint}");
-            if (null == cert.PublicKey.Key) throw new ArgumentNullException($"X509Certificate2.PublicKey.Key was NULL: {cert.Thumbprint}");
-            if (null == cert.PublicKey.Key as RSA) throw new ArgumentNullException($"X509Certificate2 is NOT a RSA Certificate: {cert.Thumbprint}");
+            // Ensure PublicKey exists
+            if (null == cert.PublicKey) throw new ArgumentException($"X509Certificate2.PublicKey was NULL: {cert.Thumbprint}", nameof(cert));
+            if (null == cert.PublicKey.Key) throw new ArgumentException($"X509Certificate2.PublicKey.Key was NULL: {cert.Thumbprint}", nameof(cert));
 
-            // DO NOT Dispose this.
-            RSA keyEncryption = (RSA)cert.PublicKey.Key;
-
-            using (Aes dataEncryption = Aes.Create())
+            using (var dataEncryption = SymmetricAlgorithm.Create(algName))
             {
-                dataEncryption.KeySize = AesKeySize;
-                dataEncryption.BlockSize = AesBlockSize;
+                if (null == dataEncryption) throw new Exception($"SymmetricAlgorithm.Create() returned null. Check algName: '{algName}'");
 
-                Encrypt(keyEncryption, dataEncryption, inputStream, outputStream);
+                dataEncryption.KeySize = keySize;
+                dataEncryption.BlockSize = blockSize;
+                Encrypt(inputStream, outputStream, cert.PublicKey.Key, dataEncryption);
             }
         }
 
@@ -85,31 +90,34 @@ namespace Org.Security.Cryptography.X509RsaAes
         /// Reads and decrypts the Encrypted DataEncryptionKey and Encrypted IV using the KEK.
         /// Decrypts the data using the DataEncryptionKey and IV. 
         /// </summary>
-        public static void Decrypt(this Stream inputStream, Stream outputStream, X509Certificate2 cert)
+        public static void Decrypt(this Stream inputStream, Stream outputStream, X509Certificate2 cert, string algName = DEF_AlgName)
         {
             if (null == inputStream) throw new ArgumentNullException(nameof(inputStream));
             if (null == outputStream) throw new ArgumentNullException(nameof(outputStream));
             if (null == cert) throw new ArgumentNullException(nameof(cert));
+            if (null == algName) throw new ArgumentNullException(nameof(algName));
 
-            // Ensure PrivateKey exists and supports RSA
-            if (null == cert.PrivateKey) throw new ArgumentNullException($"X509Certificate2.PrivateKey was NULL: {cert.Thumbprint}");
-            if (null == cert.PrivateKey as RSA) throw new ArgumentNullException($"X509Certificate2 is NOT a RSA Certificate: {cert.Thumbprint}");
+            // Ensure PrivateKey exists.
+            if (null == cert.PrivateKey) throw new ArgumentException($"X509Certificate2.PrivateKey was NULL: {cert.Thumbprint}", nameof(cert));
 
-            // DO NOT Dispose this.
-            RSA keyEncryption = (RSA)cert.PrivateKey;
-
-            using (Aes dataEncryption = Aes.Create())
+            using (var dataEncryption = SymmetricAlgorithm.Create(algName))
             {
-                Decrypt(keyEncryption, dataEncryption, inputStream, outputStream);
+                if (null == dataEncryption) throw new Exception($"SymmetricAlgorithm.Create() returned null. Check algName: '{algName}'");
+
+                Decrypt(inputStream, outputStream, cert.PrivateKey, dataEncryption);
             }
         }
 
-        static void Encrypt(AsymmetricAlgorithm keyEncryption, SymmetricAlgorithm dataEncryption, Stream inputStream, Stream outputStream)
+        static void Encrypt(Stream inputStream, Stream outputStream, AsymmetricAlgorithm keyEncryption, SymmetricAlgorithm dataEncryption)
         {
-            if (null == keyEncryption) throw new ArgumentNullException(nameof(keyEncryption));
-            if (null == dataEncryption) throw new ArgumentNullException(nameof(dataEncryption));
             if (null == inputStream) throw new ArgumentNullException(nameof(inputStream));
             if (null == outputStream) throw new ArgumentNullException(nameof(outputStream));
+            if (null == keyEncryption) throw new ArgumentNullException(nameof(keyEncryption));
+            if (null == dataEncryption) throw new ArgumentNullException(nameof(dataEncryption));
+
+            // About...
+            Trace.WriteLine($"Encrypting-KEK: {keyEncryption.GetType().Name} / {keyEncryption.KeySize} bits");
+            Trace.WriteLine($"Encrypting-DEK: {dataEncryption.GetType().Name} / {dataEncryption.KeySize} bits / BlockSize: {dataEncryption.BlockSize} bits");
 
             // The DataEncryptionKey and the IV.
             var DEK = dataEncryption.Key ?? throw new Exception("SymmetricAlgorithm.Key was NULL");
@@ -132,12 +140,12 @@ namespace Org.Security.Cryptography.X509RsaAes
             }
         }
 
-        static void Decrypt(AsymmetricAlgorithm keyEncryption, SymmetricAlgorithm dataEncryption, Stream inputStream, Stream outputStream)
+        static void Decrypt(Stream inputStream, Stream outputStream, AsymmetricAlgorithm keyEncryption, SymmetricAlgorithm dataEncryption)
         {
-            if (null == keyEncryption) throw new ArgumentNullException(nameof(keyEncryption));
-            if (null == dataEncryption) throw new ArgumentNullException(nameof(dataEncryption));
             if (null == inputStream) throw new ArgumentNullException(nameof(inputStream));
             if (null == outputStream) throw new ArgumentNullException(nameof(outputStream));
+            if (null == keyEncryption) throw new ArgumentNullException(nameof(keyEncryption));
+            if (null == dataEncryption) throw new ArgumentNullException(nameof(dataEncryption));
 
             var encryptedDEK = inputStream.ReadLengthAndBytes();
             var encryptedIV = inputStream.ReadLengthAndBytes();
@@ -145,6 +153,10 @@ namespace Org.Security.Cryptography.X509RsaAes
             var keyDeformatter = new RSAPKCS1KeyExchangeDeformatter(keyEncryption);
             dataEncryption.Key = keyDeformatter.DecryptKeyExchange(encryptedDEK);
             dataEncryption.IV = keyDeformatter.DecryptKeyExchange(encryptedIV);
+
+            // About...
+            Trace.WriteLine($"Decrypting-KEK: {keyEncryption.GetType().Name} / {keyEncryption.KeySize} bits");
+            Trace.WriteLine($"Decrypting-DEK: {dataEncryption.GetType().Name} / {dataEncryption.KeySize} bits / BlockSize: {dataEncryption.BlockSize} bits");
 
             using (var transform = dataEncryption.CreateDecryptor())
             using (var cryptoStream = new CryptoStream(inputStream, transform, CryptoStreamMode.Read))

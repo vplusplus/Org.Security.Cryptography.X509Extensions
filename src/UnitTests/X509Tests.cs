@@ -7,7 +7,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using Org.Security.Cryptography.X509RsaAes;
+using Org.Security.Cryptography;
 
 namespace UnitTests
 {
@@ -80,7 +80,6 @@ namespace UnitTests
             {
                 encryptedBytes = EncryptBytes(SampleData, CertThumbPrint);
                 //decryptedBytes = DecryptBytes(encryptedBytes, CertThumbPrint);
-
             }
             timer.Stop();
 
