@@ -5,10 +5,7 @@
 // 
 // It takes approx 5 miiliSec to lookup and obtain the certificate from local certificate store,
 // unless the Store itself is handled as singleton and never closed during process lifetime.
-//
 // X509CertificateCache can be used to cache and re-use the certs.
-// This is NOT a secrity issue, as the process has access to the certificate in the store.
-// If given process do not have access to the certificate, it won't reach the cache in the first place.
 //
 // Using the X509 certificate instance:
 // Use the cache ONLY IF you absolutely know how you are using the X509Certificate2 instance.
@@ -21,22 +18,20 @@
 // 
 // Is this thread-safe?
 // The X509CertificateCache maintains per-thread-cache.
-// Each thread has its own instance of the cache and the cached versions of the X509 certificate.
+// Each thread has its own instance of the cache and corresponding cached versions of the X509 certificate.
 // The cache is as thread-safe as the X509Certificate instance itself.
 // The cache can't prevent you from passing the certificate instances in an async call, crossing thread boundary.
 // If you are concerned about thread safety, do not pass the certifcates across async-call boundaries.
-// For threadsafety of X509Certificate2 related operations, refer Microsoft documentation.
+// For thread safety of X509Certificate2 related operations, refer Microsoft documentation.
 // 
 // How about server-restart on certificate changes?
 // The ONLY option supported by the cache is lookup by thumbprint.
 // The cache doesn't support lookup by other properties that may change, such as SubjectName.
 // The thumbprint is a digital fingerprint for specific certificate instance.
-// Also, the certificates are cached based on StoreName and StoreLocation to avoid ambuguity.
-// Certs identified by thumbprint can't change for life-time, without change to the thumbprint itself.
-// In general, you should not have to to re-start the server after adding/updating certificate.
+// In addition, the certificates are cached based on StoreName and StoreLocation to avoid ambiguity.
+// Certs identified by thumbprint can be treated immutable, as any change in certificate info would result in a new thumbprint.
+// In general, you should not have to re-start the server after adding/updating certificate.
 // DELETING a certificate might require a restart if the certificate is already cached.
-// Stop using the old thumbprint to avoid restart.
-// Another case is, if the permission to a certificate was revoked to the process, after it was already cached.
 //
 // As with any other library, read-and-understand the code before using. 
 //
