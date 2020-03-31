@@ -4,7 +4,7 @@
 # Use of self-signed=certs is NOT recommended for the real world applications. (You are welcome!)
 # ----------------------------------------------------------------------------------------
 
-$dnsName = "hello.world.net"
+$dnsName = "hello.world.2048.net"
 $outputPath = "D:\Junk"
 
 # Output file names.
@@ -25,7 +25,7 @@ Write-Host "Creating (and registering) self-signed certificate. DNS Name: $dnsNa
 $cert = New-SelfSignedCertificate `
 	-DnsName $dnsName `
 	-CertStoreLocation Cert:\CurrentUser\My `
-	-KeyLength 1024 `
+	-KeyLength 2048 `
 	-NotBefore $dtStart `
 	-NotAfter $dtEnd 
 
