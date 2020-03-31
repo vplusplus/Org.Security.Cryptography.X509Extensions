@@ -11,16 +11,96 @@ using Org.Security.Cryptography;
 
 namespace UnitTests
 {
-
     [TestClass]
     public class X509Tests
     {
         static string TestCertThumbPrint => 
             System.Configuration.ConfigurationManager.AppSettings["X509.ThumbPrint"] ??
-              throw new Exception($"AppSetting 'Test.X509.ThumbPrint' not defined.");
+              throw new Exception($"AppSetting 'X509.ThumbPrint' not defined.");
 
         [TestMethod]
-        public void FindMyCertificate()
+        public void X509_LookupSpeed()
+        {
+            //......................................................................
+            // OpenStore-Lookup-CloseStore:  apprx 5 milliSec per lookup
+            // KeepStoreOpen-Lookup:         apprx 14 microSec per lookup
+            //......................................................................
+
+            const int loopCount = 10000;
+            const StoreName storeName = StoreName.My;
+            const StoreLocation storeLocation = StoreLocation.CurrentUser;
+
+            var thumb = TestCertThumbPrint;
+            Console.WriteLine(thumb);
+
+            // Dry run
+            OpenStoreAndLookupCert();
+
+            // Scenario #1: OpenStore/Lookup/CloseStore
+            Stopwatch timer = Stopwatch.StartNew();
+            for (int i=0; i<loopCount; i++)
+            {
+                OpenStoreAndLookupCert();
+            }
+            timer.Stop();
+            PrintStats("OPEN-CLOSE-STORE", timer.Elapsed, loopCount);
+
+            // Scenario #2: OpenStore ONCE. LookupCert.
+            timer = Stopwatch.StartNew();
+            using (X509Store store = new X509Store(storeName, storeLocation))
+            {
+                // Open an existing store.
+                store.Open(OpenFlags.ReadOnly | OpenFlags.OpenExistingOnly);
+
+                for (int i = 0; i < loopCount; i++)
+                {
+                    UseMyStoreLookupCert(store);
+                }
+            }
+            timer.Stop();
+            PrintStats("KEEP-STORE-OPEN", timer.Elapsed, loopCount);
+
+            void PrintStats(string scenario, TimeSpan elapsed, int iterations)
+            {
+                var ratePerSec = (long)iterations / elapsed.TotalSeconds;
+                var avgMs = elapsed.TotalMilliseconds / iterations;
+                Console.WriteLine($"{scenario}: {iterations:#,0} iterations @ {ratePerSec:#,0.00} per-Sec. Avg: {avgMs:#,0.000} millSec");
+            }
+
+            void OpenStoreAndLookupCert()
+            {
+                using (X509Store store = new X509Store(storeName, storeLocation))
+                {
+                    // Open an existing store.
+                    store.Open(OpenFlags.ReadOnly | OpenFlags.OpenExistingOnly);
+
+                    // Look for the certificate by thumbPrint.
+                    var certs = store
+                        .Certificates
+                        .Cast<X509Certificate2>()
+                        .Where(x => null != x?.Thumbprint)
+                        .Where(x => x.Thumbprint.Equals(thumb, StringComparison.OrdinalIgnoreCase))
+                        .ToArray();
+
+                    if (1 != certs.Length) throw new Exception("Cert not found.");
+                }
+            }
+
+            void UseMyStoreLookupCert(X509Store storeThatIsAlreadyOpen)
+            {
+                var certs = storeThatIsAlreadyOpen
+                    .Certificates
+                    .Cast<X509Certificate2>()
+                    .Where(x => null != x?.Thumbprint)
+                    .Where(x => x.Thumbprint.Equals(thumb, StringComparison.OrdinalIgnoreCase))
+                    .ToArray();
+
+                if (1 != certs.Length) throw new Exception("Cert not found.");
+            }
+        }
+
+        [TestMethod]
+        public void X509_CacheLookup()
         {
             var cert = X509CertificateCache.GetCertificate(TestCertThumbPrint, StoreName.My, StoreLocation.CurrentUser);
 
@@ -144,6 +224,6 @@ namespace UnitTests
                 return buffer.ToArray();
             }
         }
-
     }
 }
+

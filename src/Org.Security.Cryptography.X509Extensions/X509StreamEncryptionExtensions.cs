@@ -70,13 +70,16 @@ namespace Org.Security.Cryptography
             if (null == cert) throw new ArgumentNullException(nameof(cert));
             if (null == algName) throw new ArgumentNullException(nameof(algName));
 
-            // DO NOT Dispose this; Doing so will render the X509Certificate in cache use-less.
+            // Encrypt using Public key.
+            // DO NOT Dispose this; Doing so will render the X509Certificate in the cache use-less.
+            // Did endurance test of 1 mil cycles, found NO HANDLE leak.
             var keyEncryption = cert.GetRsaPublicKeyAsymmetricAlgorithm();
 
             using (var dataEncryption = SymmetricAlgorithm.Create(algName))
             {
                 if (null == dataEncryption) throw new Exception($"SymmetricAlgorithm.Create() returned null. Check algName: '{algName}'");
 
+                // Select suggested keySize/blockSize.
                 dataEncryption.KeySize = keySize;
                 dataEncryption.BlockSize = blockSize;
                 Encrypt(inputStream, outputStream, keyEncryption,  dataEncryption);
@@ -95,16 +98,23 @@ namespace Org.Security.Cryptography
             if (null == cert) throw new ArgumentNullException(nameof(cert));
             if (null == algName) throw new ArgumentNullException(nameof(algName));
 
+            // Decrypt using Private key.
             // DO NOT Dispose this; Doing so will render the X509Certificate in cache use-less.
+            // Did endurance test of 1 mil cycles, found NO HANDLE leak.
             var keyEncryption = cert.GetRsaPrivateKeyAsymmetricAlgorithm();
 
             using (var dataEncryption = SymmetricAlgorithm.Create(algName))
             {
                 if (null == dataEncryption) throw new Exception($"SymmetricAlgorithm.Create() returned null. Check algName: '{algName}'");
 
+                // KeySize/blockSize will be selected when we assign key/IV later.
                 Decrypt(inputStream, outputStream, keyEncryption, dataEncryption);
             }
         }
+
+        //...............................................................................
+        #region Encrypt/Decrypt the Key (Asymmetric) and the Data (Symmetric)
+        //...............................................................................
 
         static void Encrypt(Stream inputStream, Stream outputStream, AsymmetricAlgorithm keyEncryption, SymmetricAlgorithm dataEncryption)
         {
@@ -131,6 +141,7 @@ namespace Org.Security.Cryptography
             outputStream.WriteLengthAndBytes(encryptedIV);
 
             // Write the encrypted data.
+            // Note: Disposing the CryptoStream also disposes the outputStream. There is no keepOpen option.
             using (var transform = dataEncryption.CreateEncryptor())
             using (var cryptoStream = new CryptoStream(outputStream, transform, CryptoStreamMode.Write))
             {
@@ -156,12 +167,16 @@ namespace Org.Security.Cryptography
             // Trace.WriteLine($"Decrypting. KEK: {keyEncryption.GetType().Name} / {keyEncryption.KeySize} bits");
             // Trace.WriteLine($"Decrypting. DEK: {dataEncryption.GetType().Name} / {dataEncryption.KeySize} bits / BlockSize: {dataEncryption.BlockSize} bits");
 
+            // Read the encrypted data.
+            // Note: Disposing the CryptoStream also disposes the inputStream. There is no keepOpen option.
             using (var transform = dataEncryption.CreateDecryptor())
             using (var cryptoStream = new CryptoStream(inputStream, transform, CryptoStreamMode.Read))
             {
                 cryptoStream.CopyTo(outputStream, bufferSize: dataEncryption.BlockSize * 4);
             }
         }
+
+        #endregion
 
         //...............................................................................
         #region Utils: WriteLengthAndBytes(), ReadLengthAndBytes()
@@ -171,8 +186,10 @@ namespace Org.Security.Cryptography
             if (null == outputStream) throw new ArgumentNullException(nameof(outputStream));
             if (null == bytes) throw new ArgumentNullException(nameof(bytes));
 
+            // Int32 length to exactly-four-bytes array.
             var length = BitConverter.GetBytes((Int32)bytes.Length);
 
+            // Write the four-byte-length followed by the data.
             outputStream.Write(length, 0, length.Length);
             outputStream.Write(bytes, 0, bytes.Length);
         }
@@ -188,7 +205,7 @@ namespace Org.Security.Cryptography
 
             // Length of data to read.
             var length = BitConverter.ToInt32(arrLength, 0);
-            if (length > maxBytes) throw new Exception($"Unexpected data size {length:#,0} bytes. Expecting not more than {maxBytes:#,0} bytes.");
+            if (length > maxBytes) throw new Exception($"Unexpected data size {length:#,0} bytes. Expecting NOT more than {maxBytes:#,0} bytes.");
 
             // Read suggested no of bytes...
             var bytes = new byte[length];
@@ -201,8 +218,9 @@ namespace Org.Security.Cryptography
         #endregion
 
         //...............................................................................
-        #region Obtain private/public key AsymmetricAlgorithm
+        #region Obtain public/private key AsymmetricAlgorithm
         //...............................................................................
+
         static AsymmetricAlgorithm GetRsaPublicKeyAsymmetricAlgorithm(this X509Certificate2 cert)
         {
             if (null == cert) throw new ArgumentNullException(nameof(cert));

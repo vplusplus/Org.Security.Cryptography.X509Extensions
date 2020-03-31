@@ -1,9 +1,9 @@
 ﻿
 //...................................................................................
-#region Readme: X509CertificateCache
+#region About X509CertificateCache
 //...................................................................................
 // 
-// It takes approx 5 miiliSec to lookup and obtain the certificate from local certificate store,
+// It takes approx 5 milliSec to lookup and obtain the certificate from local certificate store,
 // unless the Store itself is handled as singleton and never closed during process lifetime.
 // X509CertificateCache can be used to cache and re-use the certs.
 //
