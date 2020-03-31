@@ -17,8 +17,8 @@ Foreach ($c IN $certs)
 }
 
 # Find cert by Thumbprint, print details
-$thumb = "TheThumbprint"
-$c = Get-ChildItem -Path cert:\CurrentUser\My\$$thumb
+$t = "TheThumbprint"
+$c = Get-ChildItem -Path cert:\CurrentUser\My\$t
 Write-Host $c.ToString($true)
 
  
