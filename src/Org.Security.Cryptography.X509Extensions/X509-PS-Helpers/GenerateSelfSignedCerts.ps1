@@ -1,7 +1,7 @@
 ﻿
 # ----------------------------------------------------------------------------------------
 # Standard disclaimer, so that I am not judged...
-# Use of self-signed=certs is NOT recommonded for real world application workloads.
+# Use of self-signed=certs is NOT recommended for the real world applications. (You are welcome!)
 # ----------------------------------------------------------------------------------------
 
 $dnsName = "hello.world.net"
