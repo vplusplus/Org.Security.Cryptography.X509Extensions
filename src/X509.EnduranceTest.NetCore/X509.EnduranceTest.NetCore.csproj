@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Org.Security.Cryptography.X509Extensions\Org.Security.Cryptography.X509Extensions.csproj" />
+    <ProjectReference Include="..\X509.EnduranceTest.Shared\X509.EnduranceTest.Shared.csproj" />
+  </ItemGroup>
+
+  <!-- 
+    <HACK>
+      The entry point of .Net core Test project is in testhost.dll 
+      App.config is expected as testhost.dll.config NOT as UniTests.exe|dll.config
+      Copy the (ProjectName).dll.config to testhost.dll.config
+      If below target is removed, entries in App.config will not take effect.
+    </HACK>
+  -->
+  <Target Name="CopyAppConfig" AfterTargets="Build" DependsOnTargets="Build">
+    <CreateItem Include="$(OutputPath)$(AssemblyName).dll.config">
+      <Output TaskParameter="Include" ItemName="FilesToCopy" />
+    </CreateItem>
+    <Copy SourceFiles="@(FilesToCopy)" DestinationFiles="$(OutputPath)testhost.dll.config" />
+  </Target>
+
+
+</Project>

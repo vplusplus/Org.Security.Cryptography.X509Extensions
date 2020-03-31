@@ -1,6 +1,5 @@
 ﻿
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
@@ -71,9 +70,8 @@ namespace Org.Security.Cryptography
             if (null == cert) throw new ArgumentNullException(nameof(cert));
             if (null == algName) throw new ArgumentNullException(nameof(algName));
 
-            // Ensure PublicKey exists
-            if (null == cert.PublicKey) throw new ArgumentException($"X509Certificate2.PublicKey was NULL: {cert.Thumbprint}", nameof(cert));
-            if (null == cert.PublicKey.Key) throw new ArgumentException($"X509Certificate2.PublicKey.Key was NULL: {cert.Thumbprint}", nameof(cert));
+            // DO NOT Dispose this; Doing so will render the X509Certificate in cache use-less.
+            var keyEncryption = cert.GetRsaPublicKeyAsymmetricAlgorithm();
 
             using (var dataEncryption = SymmetricAlgorithm.Create(algName))
             {
@@ -81,7 +79,7 @@ namespace Org.Security.Cryptography
 
                 dataEncryption.KeySize = keySize;
                 dataEncryption.BlockSize = blockSize;
-                Encrypt(inputStream, outputStream, cert.PublicKey.Key, dataEncryption);
+                Encrypt(inputStream, outputStream, keyEncryption,  dataEncryption);
             }
         }
 
@@ -97,14 +95,14 @@ namespace Org.Security.Cryptography
             if (null == cert) throw new ArgumentNullException(nameof(cert));
             if (null == algName) throw new ArgumentNullException(nameof(algName));
 
-            // Ensure PrivateKey exists.
-            if (null == cert.PrivateKey) throw new ArgumentException($"X509Certificate2.PrivateKey was NULL: {cert.Thumbprint}", nameof(cert));
+            // DO NOT Dispose this; Doing so will render the X509Certificate in cache use-less.
+            var keyEncryption = cert.GetRsaPrivateKeyAsymmetricAlgorithm();
 
             using (var dataEncryption = SymmetricAlgorithm.Create(algName))
             {
                 if (null == dataEncryption) throw new Exception($"SymmetricAlgorithm.Create() returned null. Check algName: '{algName}'");
 
-                Decrypt(inputStream, outputStream, cert.PrivateKey, dataEncryption);
+                Decrypt(inputStream, outputStream, keyEncryption, dataEncryption);
             }
         }
 
@@ -165,6 +163,9 @@ namespace Org.Security.Cryptography
             }
         }
 
+        //...............................................................................
+        #region Utils: WriteLengthAndBytes(), ReadLengthAndBytes()
+        //...............................................................................
         static void WriteLengthAndBytes(this Stream outputStream, byte[] bytes)
         {
             if (null == outputStream) throw new ArgumentNullException(nameof(outputStream));
@@ -196,5 +197,63 @@ namespace Org.Security.Cryptography
 
             return bytes;
         }
+
+        #endregion
+
+        //...............................................................................
+        #region Obtain private/public key AsymmetricAlgorithm
+        //...............................................................................
+        static AsymmetricAlgorithm GetRsaPublicKeyAsymmetricAlgorithm(this X509Certificate2 cert)
+        {
+            if (null == cert) throw new ArgumentNullException(nameof(cert));
+            if (null == cert.Thumbprint) throw new ArgumentNullException("X509Certificate2.Thumbprint was NULL.");
+
+            try
+            {
+                try
+                {
+                    // [FASTER] 
+                    return cert.PublicKey?.Key ?? throw new Exception($"X509Certificate2.PublicKey?.Key was NULL.");
+                }
+                catch (CryptographicException)
+                {
+                    // [SLOWER] 
+                    return cert.GetRSAPublicKey() ?? throw new Exception($"X509Certificate2.GetRSAPublicKey() returned NULL");
+                }
+            }
+            catch (Exception err)
+            {
+                var msg = $"Error accessing PublicKey of the X509 Certificate. Cert: {cert.Thumbprint}";
+                throw new Exception(msg, err);
+            }
+        }
+
+        static AsymmetricAlgorithm GetRsaPrivateKeyAsymmetricAlgorithm(this X509Certificate2 cert)
+        {
+            if (null == cert) throw new ArgumentNullException(nameof(cert));
+            if (null == cert.Thumbprint) throw new ArgumentNullException("X509Certificate2.Thumbprint was NULL.");
+
+            try
+            {
+                try
+                {
+                    // [FASTER] 
+                    return cert.PrivateKey ?? throw new Exception($"X509Certificate2.PrivateKey was NULL.");
+                }
+                catch (CryptographicException)
+                {
+                    // [SLOWER] 
+                    return cert.GetRSAPrivateKey() ?? throw new Exception($"X509Certificate2.GetRSAPrivateKey() returned NULL.");
+                }
+            }
+            catch (Exception err)
+            {
+                var msg = $"Error accessing PrivateKey of the X509 Certificate. Cert: {cert.Thumbprint}";
+                throw new Exception(msg, err);
+            }
+        }
+
+        #endregion
+
     }
 }
