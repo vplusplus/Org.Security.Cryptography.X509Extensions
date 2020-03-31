@@ -30,7 +30,7 @@ $cert = New-SelfSignedCertificate `
 	-NotAfter $dtEnd 
 
 	# -KeySpec KeyExchange | Signature | None
-    # -KeyExportPolicy Exportable | NonExportable
+    	# -KeyExportPolicy Exportable | NonExportable
 	# -KeyAlgorithm RSA
 	# -KeyLength 1024 2048
 
@@ -40,10 +40,10 @@ $c = Get-Item Cert:\CurrentUser\My\$thumbprint
 Write-Host $c.ToString($true)
 
 # Export to files...
-Write-Host				"Exporting PFX, CER and thumbprint"
-Export-PfxCertificate	-Cert $cert -FilePath $pfxFileName -Password $pfxCredentials.Password | Out-Null
-Export-Certificate		-Cert $cert -FilePath $cerFileName | Out-Null
-Set-Content				-Path $thumbprintFileName -Value $cert.Thumbprint | Out-Null
+Write-Host "Exporting PFX, CER and thumbprint"
+Export-PfxCertificate -Cert $cert -FilePath $pfxFileName -Password $pfxCredentials.Password | Out-Null
+Export-Certificate -Cert $cert -FilePath $cerFileName | Out-Null
+Set-Content -Path $thumbprintFileName -Value $cert.Thumbprint | Out-Null
 
 # Print the file names and the thumbprint
 Write-Host "--------------------------------------------------------------------"
