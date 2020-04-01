@@ -18,9 +18,10 @@ namespace Org.Security.Cryptography
         const int       DEF_BlockSize = 128;
 
         /// <summary>
-        /// X509Certificate public key serves as KeyEncryptionKey (KEK).
+        /// The X509 Certificate public key serves as KeyEncryptionKey (KEK).
         /// Data is encrypted using a randomly generated DataEncryptionKey and IV.
-        /// Writes encrypted DataEncryptionKey (using KEK), encrypted IV (using KEK) and encrypted data (using DEK) to the output stream.
+        /// Writes encrypted DataEncryptionKey, encrypted IV and encrypted data to the output stream.
+        /// NOTE: The OutputStream will be disposed at the end of this call.
         /// </summary>
         public static void EncryptStream(this X509Certificate2 x509Cert, Stream inputStream, Stream outputStream, string dataEncryptionAlgorithmName = DEF_DataEncryptionAlgorithmName, int keySize = DEF_KeySize, int blockSize = DEF_BlockSize)
         {
@@ -30,7 +31,8 @@ namespace Org.Security.Cryptography
             if (null == dataEncryptionAlgorithmName) throw new ArgumentNullException(nameof(dataEncryptionAlgorithmName));
 
             // Encrypt using Public key.
-            // DO NOT Dispose this; Doing so will render the X509Certificate in the cache use-less.
+            // DO NOT Dispose this; Doing so will render the X509Certificate use-less, if the caller had cached the cert.
+            // We didn't acquire the X509 Certificate; Caller is responsible for disposing X509Certificate2. 
             // Did endurance test of 1 mil cycles, found NO HANDLE leak.
             var keyEncryption = x509Cert.GetPublicKeyAsymmetricAlgorithm();
 
@@ -46,9 +48,10 @@ namespace Org.Security.Cryptography
         }
 
         /// <summary>
-        /// X509Certificate private key serves as KeyEncryptionKey (KEK).
+        /// The X509 Certificate private key serves as KeyEncryptionKey (KEK).
         /// Reads and decrypts the Encrypted DataEncryptionKey and Encrypted IV using the KEK.
         /// Decrypts the data using the DataEncryptionKey and IV. 
+        /// NOTE: The InputStream will be disposed at the end of this call.
         /// </summary>
         public static void DecryptStream(this X509Certificate2 x509Cert, Stream inputStream, Stream outputStream, string dataEncryptionAlgorithmName = DEF_DataEncryptionAlgorithmName)
         {
@@ -58,7 +61,8 @@ namespace Org.Security.Cryptography
             if (null == dataEncryptionAlgorithmName) throw new ArgumentNullException(nameof(dataEncryptionAlgorithmName));
 
             // Decrypt using Private key.
-            // DO NOT Dispose this; Doing so will render the X509Certificate in cache use-less.
+            // DO NOT Dispose this; Doing so will render the X509Certificate use-less, if the caller had cached the cert.
+            // We didn't acquire the X509 Certificate; Caller is responsible for disposing X509Certificate2. 
             // Did endurance test of 1 mil cycles, found NO HANDLE leak.
             var keyEncryption = x509Cert.GetPrivateKeyAsymmetricAlgorithm();
 
