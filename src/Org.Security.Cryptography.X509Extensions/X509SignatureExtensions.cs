@@ -7,27 +7,34 @@ namespace Org.Security.Cryptography
 {
     public static class X509SignatureExtensions
     {
-        public static byte[] CreateSignature(this X509Certificate2 x509Cert, byte[] hash)
+        /// <summary>
+        /// Signs given messageDigest (hash-value) using X509 PrivateKey and returns the RSA PKCS #1 signature.
+        /// </summary>
+        public static byte[] CreateSignature(this X509Certificate2 x509Cert, byte[] messageDigest)
         {
             if (null == x509Cert) throw new ArgumentNullException(nameof(x509Cert));
-            if (null == hash) throw new ArgumentNullException(nameof(hash));
+            if (null == messageDigest) throw new ArgumentNullException(nameof(messageDigest));
 
-            var asymmetricAlgorithm = x509Cert.GetRsaPrivateKeyAsymmetricAlgorithm();
-            var hashAlgorithmName = InferHashAlgorithm(hash);
+            var asymmetricAlgorithm = x509Cert.GetPrivateKeyAsymmetricAlgorithm();
+            var hashAlgorithmName = InferHashAlgorithm(messageDigest);
 
             var formatter = new RSAPKCS1SignatureFormatter(asymmetricAlgorithm);
             formatter.SetHashAlgorithm(hashAlgorithmName);
 
-            return formatter.CreateSignature(hash);
+            return formatter.CreateSignature(messageDigest);
         }
 
+        /// <summary>
+        /// Verifies RSA PKCS #1 signature for give messageDigest (hash-value), using X509 PublicKey.
+        /// Returns true|false indicating if the signature is valid.
+        /// </summary>
         public static bool VerifySignature(this X509Certificate2 x509Cert, byte[] hash, byte[] signature)
         {
             if (null == x509Cert) throw new ArgumentNullException(nameof(x509Cert));
             if (null == hash) throw new ArgumentNullException(nameof(hash));
             if (null == signature) throw new ArgumentNullException(nameof(signature));
 
-            var asymmetricAlgorithm = x509Cert.GetRsaPublicKeyAsymmetricAlgorithm();
+            var asymmetricAlgorithm = x509Cert.GetPublicKeyAsymmetricAlgorithm();
             var hashAlgorithmName = InferHashAlgorithm(hash);
 
             var formatter = new RSAPKCS1SignatureDeformatter(asymmetricAlgorithm);
@@ -55,7 +62,7 @@ namespace Org.Security.Cryptography
                 case 48: return HashAlgorithmName.SHA384.Name;
                 case 64: return HashAlgorithmName.SHA512.Name;
                 default:
-                    throw new Exception($"Can't infer Hash algorithm. Unexpected hash length {hash.Length:#,0} bytes. Expecting 16|20|32|48|64 bytes.");
+                    throw new Exception($"Can't infer HashAlgorithm. Unknown hash length {hash.Length:#,0} bytes. Expecting 16|20|32|48|64 bytes.");
             }
         }
     }

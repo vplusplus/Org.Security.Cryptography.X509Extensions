@@ -10,7 +10,7 @@ namespace Org.Security.Cryptography
         /// <summary>
         /// Returns an AsymmetricAlgorithm, representing the PublicKey
         /// </summary>
-        internal static AsymmetricAlgorithm GetRsaPublicKeyAsymmetricAlgorithm(this X509Certificate2 x509Cert)
+        internal static AsymmetricAlgorithm GetPublicKeyAsymmetricAlgorithm(this X509Certificate2 x509Cert)
         {
             if (null == x509Cert) throw new ArgumentNullException(nameof(x509Cert));
             if (null == x509Cert.Thumbprint) throw new ArgumentNullException("X509Certificate2.Thumbprint was NULL.");
@@ -38,7 +38,7 @@ namespace Org.Security.Cryptography
         /// <summary>
         /// Returns an AsymmetricAlgorithm, representing the PrivateKey
         /// </summary>
-        internal static AsymmetricAlgorithm GetRsaPrivateKeyAsymmetricAlgorithm(this X509Certificate2 x509Cert)
+        internal static AsymmetricAlgorithm GetPrivateKeyAsymmetricAlgorithm(this X509Certificate2 x509Cert)
         {
             if (null == x509Cert) throw new ArgumentNullException(nameof(x509Cert));
             if (null == x509Cert.Thumbprint) throw new ArgumentNullException("X509Certificate2.Thumbprint was NULL.");

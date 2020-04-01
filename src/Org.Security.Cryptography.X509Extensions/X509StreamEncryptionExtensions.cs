@@ -32,7 +32,7 @@ namespace Org.Security.Cryptography
             // Encrypt using Public key.
             // DO NOT Dispose this; Doing so will render the X509Certificate in the cache use-less.
             // Did endurance test of 1 mil cycles, found NO HANDLE leak.
-            var keyEncryption = x509Cert.GetRsaPublicKeyAsymmetricAlgorithm();
+            var keyEncryption = x509Cert.GetPublicKeyAsymmetricAlgorithm();
 
             using (var dataEncryption = SymmetricAlgorithm.Create(dataEncryptionAlgorithmName))
             {
@@ -60,7 +60,7 @@ namespace Org.Security.Cryptography
             // Decrypt using Private key.
             // DO NOT Dispose this; Doing so will render the X509Certificate in cache use-less.
             // Did endurance test of 1 mil cycles, found NO HANDLE leak.
-            var keyEncryption = x509Cert.GetRsaPrivateKeyAsymmetricAlgorithm();
+            var keyEncryption = x509Cert.GetPrivateKeyAsymmetricAlgorithm();
 
             using (var dataEncryption = SymmetricAlgorithm.Create(dataEncryptionAlgorithmName))
             {
