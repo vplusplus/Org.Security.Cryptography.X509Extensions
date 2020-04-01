@@ -8,81 +8,40 @@ namespace Org.Security.Cryptography
 {
     /// <summary>
     /// Extensions to encrypt/decrypt Streams using X509 Certificates.
-    /// By default, uses AES-256/128 for Data encryption.
+    /// DEFAULT: AES-256/128 for Data encryption.
     /// </summary>
     public static class X509StreamEncryptionExtensions
     {
         // Defaults
-        const string    DEF_AlgName     = "Aes";
-        const int       DEF_KeySize     = 256;
-        const int       DEF_BlockSize   = 128;
-
-        // Random prefix, for a private slice of X509 Cache.
-        static readonly string X509CachePrefix = Guid.NewGuid().ToString();
+        const string    DEF_DataEncryptionAlgorithmName = "Aes";
+        const int       DEF_KeySize = 256;
+        const int       DEF_BlockSize = 128;
 
         /// <summary>
         /// X509Certificate public key serves as KeyEncryptionKey (KEK).
         /// Data is encrypted using a randomly generated DataEncryptionKey and IV.
         /// Writes encrypted DataEncryptionKey (using KEK), encrypted IV (using KEK) and encrypted data (using DEK) to the output stream.
         /// </summary>
-        public static void Encrypt(this Stream inputStream, Stream outputStream, string thumbPrint, StoreName storeName, StoreLocation storeLocation, string algName = DEF_AlgName, int keySize = DEF_KeySize, int blockSize = DEF_BlockSize)
+        public static void EncryptStream(this X509Certificate2 x509Cert, Stream inputStream, Stream outputStream, string dataEncryptionAlgorithmName = DEF_DataEncryptionAlgorithmName, int keySize = DEF_KeySize, int blockSize = DEF_BlockSize)
         {
+            if (null == x509Cert) throw new ArgumentNullException(nameof(x509Cert));
             if (null == inputStream) throw new ArgumentNullException(nameof(inputStream));
             if (null == outputStream) throw new ArgumentNullException(nameof(outputStream));
-            if (null == thumbPrint) throw new ArgumentNullException(nameof(thumbPrint));
-            if (null == algName) throw new ArgumentNullException(nameof(algName));
-
-            Encrypt(
-                inputStream, outputStream,
-                X509CertificateCache.GetCertificate(thumbPrint, storeName, storeLocation, X509CachePrefix),
-                algName: algName, keySize: keySize, blockSize: blockSize
-            );
-        }
-
-        /// <summary>
-        /// X509Certificate private key serves as KeyEncryptionKey (KEK).
-        /// Reads and decrypts the Encrypted DataEncryptionKey and Encrypted IV using the KEK.
-        /// Decrypts the data using the DataEncryptionKey and IV. 
-        /// </summary>
-        public static void Decrypt(this Stream inputStream, Stream outputStream, string thumbPrint, StoreName storeName, StoreLocation storeLocation, string algName = DEF_AlgName)
-        {
-            if (null == inputStream) throw new ArgumentNullException(nameof(inputStream));
-            if (null == outputStream) throw new ArgumentNullException(nameof(outputStream));
-            if (null == thumbPrint) throw new ArgumentNullException(nameof(thumbPrint));
-            if (null == algName) throw new ArgumentNullException(nameof(algName));
-
-            Decrypt(
-                inputStream, outputStream,
-                X509CertificateCache.GetCertificate(thumbPrint, storeName, storeLocation, X509CachePrefix),
-                algName
-            );
-        }
-
-        /// <summary>
-        /// X509Certificate public key serves as KeyEncryptionKey (KEK).
-        /// Data is encrypted using a randomly generated DataEncryptionKey and IV.
-        /// Writes encrypted DataEncryptionKey (using KEK), encrypted IV (using KEK) and encrypted data (using DEK) to the output stream.
-        /// </summary>
-        public static void Encrypt(this Stream inputStream, Stream outputStream, X509Certificate2 cert, string algName = DEF_AlgName, int keySize = DEF_KeySize, int blockSize = DEF_BlockSize)
-        {
-            if (null == inputStream) throw new ArgumentNullException(nameof(inputStream));
-            if (null == outputStream) throw new ArgumentNullException(nameof(outputStream));
-            if (null == cert) throw new ArgumentNullException(nameof(cert));
-            if (null == algName) throw new ArgumentNullException(nameof(algName));
+            if (null == dataEncryptionAlgorithmName) throw new ArgumentNullException(nameof(dataEncryptionAlgorithmName));
 
             // Encrypt using Public key.
             // DO NOT Dispose this; Doing so will render the X509Certificate in the cache use-less.
             // Did endurance test of 1 mil cycles, found NO HANDLE leak.
-            var keyEncryption = cert.GetRsaPublicKeyAsymmetricAlgorithm();
+            var keyEncryption = x509Cert.GetRsaPublicKeyAsymmetricAlgorithm();
 
-            using (var dataEncryption = SymmetricAlgorithm.Create(algName))
+            using (var dataEncryption = SymmetricAlgorithm.Create(dataEncryptionAlgorithmName))
             {
-                if (null == dataEncryption) throw new Exception($"SymmetricAlgorithm.Create() returned null. Check algName: '{algName}'");
+                if (null == dataEncryption) throw new Exception($"SymmetricAlgorithm.Create('{dataEncryptionAlgorithmName}') returned null.");
 
                 // Select suggested keySize/blockSize.
                 dataEncryption.KeySize = keySize;
                 dataEncryption.BlockSize = blockSize;
-                Encrypt(inputStream, outputStream, keyEncryption,  dataEncryption);
+                EncryptStream(inputStream, outputStream, keyEncryption,  dataEncryption);
             }
         }
 
@@ -91,24 +50,24 @@ namespace Org.Security.Cryptography
         /// Reads and decrypts the Encrypted DataEncryptionKey and Encrypted IV using the KEK.
         /// Decrypts the data using the DataEncryptionKey and IV. 
         /// </summary>
-        public static void Decrypt(this Stream inputStream, Stream outputStream, X509Certificate2 cert, string algName = DEF_AlgName)
+        public static void DecryptStream(this X509Certificate2 x509Cert, Stream inputStream, Stream outputStream, string dataEncryptionAlgorithmName = DEF_DataEncryptionAlgorithmName)
         {
+            if (null == x509Cert) throw new ArgumentNullException(nameof(x509Cert));
             if (null == inputStream) throw new ArgumentNullException(nameof(inputStream));
             if (null == outputStream) throw new ArgumentNullException(nameof(outputStream));
-            if (null == cert) throw new ArgumentNullException(nameof(cert));
-            if (null == algName) throw new ArgumentNullException(nameof(algName));
+            if (null == dataEncryptionAlgorithmName) throw new ArgumentNullException(nameof(dataEncryptionAlgorithmName));
 
             // Decrypt using Private key.
             // DO NOT Dispose this; Doing so will render the X509Certificate in cache use-less.
             // Did endurance test of 1 mil cycles, found NO HANDLE leak.
-            var keyEncryption = cert.GetRsaPrivateKeyAsymmetricAlgorithm();
+            var keyEncryption = x509Cert.GetRsaPrivateKeyAsymmetricAlgorithm();
 
-            using (var dataEncryption = SymmetricAlgorithm.Create(algName))
+            using (var dataEncryption = SymmetricAlgorithm.Create(dataEncryptionAlgorithmName))
             {
-                if (null == dataEncryption) throw new Exception($"SymmetricAlgorithm.Create() returned null. Check algName: '{algName}'");
+                if (null == dataEncryption) throw new Exception($"SymmetricAlgorithm.Create('{dataEncryptionAlgorithmName}') returned null.");
 
                 // KeySize/blockSize will be selected when we assign key/IV later.
-                Decrypt(inputStream, outputStream, keyEncryption, dataEncryption);
+                DecryptStream(inputStream, outputStream, keyEncryption, dataEncryption);
             }
         }
 
@@ -116,7 +75,7 @@ namespace Org.Security.Cryptography
         #region Encrypt/Decrypt the Key (Asymmetric) and the Data (Symmetric)
         //...............................................................................
 
-        static void Encrypt(Stream inputStream, Stream outputStream, AsymmetricAlgorithm keyEncryption, SymmetricAlgorithm dataEncryption)
+        static void EncryptStream(Stream inputStream, Stream outputStream, AsymmetricAlgorithm keyEncryption, SymmetricAlgorithm dataEncryption)
         {
             if (null == inputStream) throw new ArgumentNullException(nameof(inputStream));
             if (null == outputStream) throw new ArgumentNullException(nameof(outputStream));
@@ -149,7 +108,7 @@ namespace Org.Security.Cryptography
             }
         }
 
-        static void Decrypt(Stream inputStream, Stream outputStream, AsymmetricAlgorithm keyEncryption, SymmetricAlgorithm dataEncryption)
+        static void DecryptStream(Stream inputStream, Stream outputStream, AsymmetricAlgorithm keyEncryption, SymmetricAlgorithm dataEncryption)
         {
             if (null == inputStream) throw new ArgumentNullException(nameof(inputStream));
             if (null == outputStream) throw new ArgumentNullException(nameof(outputStream));
@@ -213,62 +172,6 @@ namespace Org.Security.Cryptography
             if (bytesRead != bytes.Length) throw new Exception($"Unexpected end of input stream. Expecting {bytes.Length:#,0} bytes.");
 
             return bytes;
-        }
-
-        #endregion
-
-        //...............................................................................
-        #region Obtain public/private key AsymmetricAlgorithm
-        //...............................................................................
-
-        static AsymmetricAlgorithm GetRsaPublicKeyAsymmetricAlgorithm(this X509Certificate2 cert)
-        {
-            if (null == cert) throw new ArgumentNullException(nameof(cert));
-            if (null == cert.Thumbprint) throw new ArgumentNullException("X509Certificate2.Thumbprint was NULL.");
-
-            try
-            {
-                try
-                {
-                    // [FASTER] 
-                    return cert.PublicKey?.Key ?? throw new Exception($"X509Certificate2.PublicKey?.Key was NULL.");
-                }
-                catch (CryptographicException)
-                {
-                    // [SLOWER] 
-                    return cert.GetRSAPublicKey() ?? throw new Exception($"X509Certificate2.GetRSAPublicKey() returned NULL");
-                }
-            }
-            catch (Exception err)
-            {
-                var msg = $"Error accessing PublicKey of the X509 Certificate. Cert: {cert.Thumbprint}";
-                throw new Exception(msg, err);
-            }
-        }
-
-        static AsymmetricAlgorithm GetRsaPrivateKeyAsymmetricAlgorithm(this X509Certificate2 cert)
-        {
-            if (null == cert) throw new ArgumentNullException(nameof(cert));
-            if (null == cert.Thumbprint) throw new ArgumentNullException("X509Certificate2.Thumbprint was NULL.");
-
-            try
-            {
-                try
-                {
-                    // [FASTER] 
-                    return cert.PrivateKey ?? throw new Exception($"X509Certificate2.PrivateKey was NULL.");
-                }
-                catch (CryptographicException)
-                {
-                    // [SLOWER] 
-                    return cert.GetRSAPrivateKey() ?? throw new Exception($"X509Certificate2.GetRSAPrivateKey() returned NULL.");
-                }
-            }
-            catch (Exception err)
-            {
-                var msg = $"Error accessing PrivateKey of the X509 Certificate. Cert: {cert.Thumbprint}";
-                throw new Exception(msg, err);
-            }
         }
 
         #endregion

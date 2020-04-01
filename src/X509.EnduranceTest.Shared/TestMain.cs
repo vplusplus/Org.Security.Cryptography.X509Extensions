@@ -189,7 +189,7 @@ namespace X509.EnduranceTest.Shared
 
             var rate = 0.0;
 
-            while (counter++ < maxIterations)
+            while (counter++ <= maxIterations)
             {
                 if (encrypt) EncryptBytes(decryptedBytes, cert);
                 if (decrypt) DecryptBytes(encryptedBytes, cert);
@@ -212,7 +212,7 @@ namespace X509.EnduranceTest.Shared
             using (var input = new MemoryStream(inputData))
             using (var output = new MemoryStream())
             {
-                input.Encrypt(output, cert);
+                cert.EncryptStream(input, output);
                 output.Flush();
                 return output.ToArray();
             }
@@ -223,7 +223,7 @@ namespace X509.EnduranceTest.Shared
             using (var input = new MemoryStream(inputData))
             using (var output = new MemoryStream(inputData.Length))
             {
-                input.Decrypt(output, cert);
+                cert.DecryptStream(input, output);
                 output.Flush();
                 return output.ToArray();
             }
