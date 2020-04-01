@@ -13,7 +13,9 @@ namespace X509.EnduranceTest.Shared
 {
     public static class TestMain
     {
+        //...............................................................................
         #region AppSettings
+        //...............................................................................
 
         static string   X509Thumbprint      => AppSetting("X509.Thumbprint");
         static int      SampleDataSizeKB    => Convert.ToInt32(AppSetting("SampleDataSizeKB"));
@@ -48,13 +50,13 @@ namespace X509.EnduranceTest.Shared
         {
             while (true)
             {
-                Console.WriteLine("----------------------------------");
+                Console.WriteLine("-------------------------------------------");
                 Console.WriteLine("[P] Print AsymmetricAlgorithm provider.");
-                Console.WriteLine("[V] Validate Encryption/Decryption once.");
+                Console.WriteLine("[V] Validate Encryption/Decryption, ONCE.");
                 Console.WriteLine("[E] Start ENcryption loop.");
                 Console.WriteLine("[D] Start DEcryption loop.");
-                Console.WriteLine("[Q] or Ctrl-C anytime to quit");
-                Console.WriteLine("----------------------------------");
+                Console.WriteLine("[Q] or Ctrl-C to quit");
+                Console.WriteLine("-------------------------------------------");
 
                 var input = (Console.ReadLine() ?? string.Empty).Trim().ToUpper();
 
@@ -98,9 +100,9 @@ namespace X509.EnduranceTest.Shared
             // Encrypt/Decrypt ONCE...
             var encryptedBytes = EncryptBytes(sampleData, cert);
             var decryptedBytes = DecryptBytes(encryptedBytes, cert);
-            Console.WriteLine($"SampleData: {sampleData.Length} bytes");
-            Console.WriteLine($"Encrypted: {encryptedBytes.Length} bytes");
-            Console.WriteLine($"Decrypted: {decryptedBytes.Length} bytes");
+            Console.WriteLine($"SampleData: {sampleData.Length:#,0} bytes");
+            Console.WriteLine($"Encrypted:  {encryptedBytes.Length:#,0} bytes");
+            Console.WriteLine($"Decrypted:  {decryptedBytes.Length:#,0} bytes");
 
             // Vallidate
             var good = sampleData.SequenceEqual(decryptedBytes);
@@ -109,56 +111,68 @@ namespace X509.EnduranceTest.Shared
 
         static void PrintCSP(X509Certificate2 cert)
         {
-            AsymmetricAlgorithm alg = null;
+            Console.WriteLine($"Cert: {cert.Subject} / {cert.Thumbprint}");
+            Console.WriteLine();
+
+            try
+            {
+                Console.WriteLine("cert.PublicKey.Key");
+                var alg = cert.PublicKey.Key;
+                Console.WriteLine(alg.GetType().FullName);
+                Console.WriteLine();
+            }
+            catch (Exception err)
+            {
+                PrintErrorSummary(err);
+            }
+
+            try
+            {
+                // Fails in .NET Framework if -KeySpec Signature not specified.
+                // Works in .NET Core
+                Console.WriteLine("cert.PrivateKey");
+                var alg = cert.PrivateKey;
+                Console.WriteLine(alg.GetType().FullName);
+                Console.WriteLine();
+            }
+            catch (Exception err)
+            {
+                PrintErrorSummary(err);
+            }
 
             try
             {
                 Console.WriteLine("cert.GetRSAPublicKey()");
-                alg = cert.GetRSAPublicKey();
+                var alg = cert.GetRSAPublicKey();
                 Console.WriteLine(alg.GetType().FullName);
+                Console.WriteLine();
             }
             catch (Exception err)
             {
-                PrintTopErrorInfo(err);
+                PrintErrorSummary(err);
             }
 
             try
             {
                 Console.WriteLine("cert.GetRSAPrivateKey()");
-                alg = cert.GetRSAPrivateKey();
+                var alg = cert.GetRSAPrivateKey();
                 Console.WriteLine(alg.GetType().FullName);
+                Console.WriteLine();
             }
             catch (Exception err)
             {
-                PrintTopErrorInfo(err);
+                PrintErrorSummary(err);
             }
 
-            try
+            void PrintErrorSummary(Exception ex)
             {
-                Console.WriteLine("cert.PublicKey.Key");
-                alg = cert.PublicKey.Key;
-                Console.WriteLine(alg.GetType().FullName);
-            }
-            catch(Exception err)
-            {
-                PrintTopErrorInfo(err);
-            }
-
-            try
-            {
-                Console.WriteLine("cert.PrivateKey");
-                alg = cert.PrivateKey;
-                Console.WriteLine(alg.GetType().FullName);
-            }
-            catch (Exception err)
-            {
-                PrintTopErrorInfo(err);
-            }
-
-            void PrintTopErrorInfo(Exception ex)
-            {
-                Console.WriteLine($"[{ex.GetType().FullName}]");
-                Console.WriteLine(ex.Message);
+                Console.WriteLine("ERROR:");
+                while(null != ex)
+                {
+                    Console.WriteLine($"[{ex.GetType().FullName}]");
+                    Console.WriteLine(ex.Message);
+                    ex = ex.InnerException;
+                }
             }
         }
 
