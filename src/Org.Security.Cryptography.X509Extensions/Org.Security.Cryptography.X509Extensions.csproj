@@ -3,16 +3,18 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>Org.Security.Cryptography</RootNamespace>
-    <Version>20.3.0</Version>
+    <Version>2.0.0</Version>
     <Authors>Venkatesh Ramakrishnan</Authors>
     <Company>Open Source</Company>
     <Product>X509Extensions</Product>
-    <Description>Helpers for encryption/decryption/signing using X509 certs.</Description>
-    <PackageProjectUrl>https://github.com/vplusplus/Org.Security.Cryptography.X509Extensions</PackageProjectUrl>
+    <Description>Helpers for encryption/decryption/signing using X509 certs. Information security is a complex and sensitive area, and requires deep expertise. Review the source code first before using this package.</Description>
+
+    <RepositoryUrl>https://github.com/vplusplus/Org.Security.Cryptography.X509Extensions</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
     <PackageTags>.NET Standard X509 Encrypt Decrypt DigitalSignature</PackageTags>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageReleaseNotes>Information security is a complex and sensitive area, and requires deep expertise. Review the source code first before using this package.</PackageReleaseNotes>
+    <PackageReleaseNotes></PackageReleaseNotes>
   </PropertyGroup>
 
 </Project>
