@@ -94,7 +94,7 @@ namespace X509.EnduranceTest.Shared
 
         public static void ValidateEncryptionAndDecryptionOnce(X509Certificate2 cert)
         {
-            var sampleData = GenerateJunk(SampleDataSizeKB);
+            var sampleData = TestDataGenerator.GenerateJunk(SampleDataSizeKB);
             Console.WriteLine($"Generated {sampleData.Length / 1024} KB random binary data.");
 
             // Encrypt/Decrypt ONCE...
@@ -188,7 +188,7 @@ namespace X509.EnduranceTest.Shared
 
         static void BeginLoop(X509Certificate2 cert, int maxIterations, bool encrypt = false, bool decrypt = false)
         {
-            var sampleData = GenerateJunk(SampleDataSizeKB);
+            var sampleData = TestDataGenerator.GenerateJunk(SampleDataSizeKB);
 
             Console.WriteLine($"MaxIterations: {maxIterations:#,0}");
             Console.WriteLine($"Generated {sampleData.Length / 1024} KB random binary data.");
@@ -243,24 +243,6 @@ namespace X509.EnduranceTest.Shared
             }
         }
 
-        static byte[] GenerateJunk(int kiloBytes)
-        {
-            int maxBytes = kiloBytes * 1024;
-
-            using (var buffer = new MemoryStream(maxBytes))
-            {
-                var bytesWritten = 0;
-
-                while (bytesWritten < maxBytes)
-                {
-                    var more = Guid.NewGuid().ToByteArray();
-                    buffer.Write(more, 0, more.Length);
-                    bytesWritten += more.Length;
-                }
-
-                buffer.Flush();
-                return buffer.ToArray();
-            }
-        }
+       
     }
 }

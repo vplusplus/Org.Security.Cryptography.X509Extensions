@@ -16,6 +16,16 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Org.Security.Cryptography.X509Extensions\Org.Security.Cryptography.X509Extensions.csproj" />
+    <ProjectReference Include="..\X509.EnduranceTest.Shared\X509.EnduranceTest.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="TestCertificates\hello.world.2048.net.cer">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="TestCertificates\hello.world.2048.net.pfx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <!-- 

@@ -8,12 +8,42 @@ using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Org.Security.Cryptography;
+using X509.EnduranceTest.Shared;
 
 namespace UnitTests
 {
     [TestClass]
     public class X509EncryptionTests
     {
+        [TestMethod]
+        public void WhenEncryptAndDecryptAreCalledWithCertsLoadedFromFiles_ShouldWork()
+        {
+            //Arrange
+            const string TEST = "Hello World!";
+            var x509EncryptionCert = CertificateLoader.LoadFromFile("TestCertificates/hello.world.2048.net.cer");
+            var x509DecryptionCert = CertificateLoader.LoadFromFile("TestCertificates/hello.world.2048.net.pfx",MyConfig.TestCertficatePassword);
+            byte[] input = Encoding.UTF8.GetBytes(TEST);
+            //Act
+            byte[] output1 = DecryptBytes(x509DecryptionCert, EncryptBytes(x509EncryptionCert, input));
+            //Assert
+            Assert.IsTrue(input.SequenceEqual(output1));
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void WhenDecryptStreamIsCalledWithCertThatDontHavePrivateKey_ThrowException()
+        {
+            //Arrange
+            const string TEST = "Hello World!";
+            var x509CertWithoutPrivateKey = CertificateLoader.LoadFromFile("TestCertificates/hello.world.2048.net.cer");
+            byte[] input = Encoding.UTF8.GetBytes(TEST);
+            //Act
+            byte[] output1 = DecryptBytes(x509CertWithoutPrivateKey, EncryptBytes(x509CertWithoutPrivateKey, input));
+            //Assert
+            Assert.IsTrue(input.SequenceEqual(output1));
+        }
+        //TODO: Below tests kept as is to test for now. Change later to have the tests run independently.
+        // Ideally, it doesn't matter where from the certificate loaded as long as the X509Certificate2 object is available to tests.
         [TestMethod]
         public void X509_TripleRoundTripTest()
         {
@@ -36,7 +66,7 @@ namespace UnitTests
             Console.WriteLine($"#2 {Encoding.UTF8.GetString(output2)}");
             Console.WriteLine($"#3 {Encoding.UTF8.GetString(output3)}");
         }
-
+        //TODO: Move this benchmark to separate Test class
         [TestMethod]
         public void X509_Benchmark_EncryptionAndDecryption()
         {
@@ -48,7 +78,7 @@ namespace UnitTests
             // Generate some random data
             // Perform a dry run
             // Capture Encrypted and Decrypted version
-            var SampleData = GenerateJunk(SampleDataSizeInKB);
+            var SampleData = TestDataGenerator.GenerateJunk(SampleDataSizeInKB);
             var encryptedBytes = EncryptBytes(x509Cert, SampleData);
             var decryptedBytes = DecryptBytes(x509Cert, encryptedBytes);
 
@@ -90,7 +120,7 @@ namespace UnitTests
             Console.WriteLine($"{BenchmarkLoopCount:#,0} iterations @ {ratePerSec:#,0.0} per Sec. / Average: {avgMs:#,0.00} milliSec");
 
         }
-
+        //TODO: Move this to separate class
         byte[] EncryptBytes(X509Certificate2 x509Cert, byte[] inputData)
         {
             using (var input = new MemoryStream(inputData))
@@ -101,7 +131,7 @@ namespace UnitTests
                 return output.ToArray();
             }
         }
-
+        //TODO: Move this to separate class
         byte[] DecryptBytes(X509Certificate2 x509Cert, byte[] inputData)
         {
             using (var input = new MemoryStream(inputData))
@@ -113,25 +143,7 @@ namespace UnitTests
             }
         }
 
-        static byte[] GenerateJunk(int kiloBytes)
-        {
-            int maxBytes = kiloBytes * 1024;
-
-            using (var buffer = new MemoryStream(maxBytes))
-            {
-                var bytesWritten = 0;
-
-                while (bytesWritten < maxBytes)
-                {
-                    var more = Guid.NewGuid().ToByteArray();
-                    buffer.Write(more, 0, more.Length);
-                    bytesWritten += more.Length;
-                }
-
-                buffer.Flush();
-                return buffer.ToArray();
-            }
-        }
+       
     }
 }
 
