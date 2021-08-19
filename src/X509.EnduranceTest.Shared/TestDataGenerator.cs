@@ -20,7 +20,6 @@ namespace X509.EnduranceTest.Shared
                     buffer.Write(more, 0, more.Length);
                     bytesWritten += more.Length;
                 }
-
                 buffer.Flush();
                 return buffer.ToArray();
             }

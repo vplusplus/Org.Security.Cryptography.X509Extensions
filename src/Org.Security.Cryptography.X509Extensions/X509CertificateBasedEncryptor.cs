@@ -22,7 +22,9 @@ namespace Org.Security.Cryptography
         /// <param name="dataEncryptionAlgorithmName"></param>
         /// <param name="keySize"></param>
         /// <param name="blockSize"></param>
-        /// <remarks>The thumbprint of the certificate is attached as first thing in the encrypted data</remarks>
+        /// <remarks>The thumbprint of the certificate is attached as first thing in the encrypted data. 
+        /// Use this if decryptor doesn't know what certificate encryptor used. Mainly in internet/web/distributed systems scenarios where the certificate rotated out of sync.
+        /// </remarks>
         //TODO: Add the timestamp of encryption to avoid replay attacks if its used to transmit authentication details between client and server.
         public void EncryptStream(X509Certificate2 x509Cert,
                                 Stream inputStream,
@@ -37,14 +39,18 @@ namespace Org.Security.Cryptography
         }
         /// <summary>
         /// Encrypt input string using the symmetric algorithm provided. 
-        /// The key of symmetric algorithm is encrypted using the Asymmetric algorithm available on the given certificate.
+        /// The key of symmetric algorithm is encrypted using the Asymmetric algorithm available on the given <paramref name="x509Cert"/>.
         /// </summary>
         /// <param name="x509Cert"></param>
         /// <param name="valueToEncode"></param>
         /// <param name="dataEncryptionAlgorithmName"></param>
         /// <param name="keySize"></param>
         /// <param name="blockSize"></param>
-        /// <returns> The encrypted content in base64 format</returns>
+        /// <returns> The encrypted content in base64 format.</returns>
+        /// <remarks>
+        /// The thumbprint of the certificate is attached as first thing in the encrypted data.
+        /// Use this if decryptor doesn't know what certificate encryptor used. Mainly in internet/web/distributed systems scenarios where the certificate rotated out of sync.</remarks>
+        /// </remarks>
         public string EncryptStringToBase64EncodedString(X509Certificate2 x509Cert,
             string valueToEncode,
             string dataEncryptionAlgorithmName = DEF_DataEncryptionAlgorithmName,

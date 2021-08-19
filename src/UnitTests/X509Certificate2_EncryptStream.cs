@@ -5,7 +5,7 @@ using X509.EnduranceTest.Shared;
 namespace UnitTests
 {
     [TestClass]
-    public class X509StreamEncryptionExtensions_EncryptStream_SizeTests
+    public class X509Certificate2_EncryptStream
     {
         [TestMethod]
         public void WhenSigleLetterAIsEncrypted_ResultSizeWillBe536()
