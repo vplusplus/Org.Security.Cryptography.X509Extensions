@@ -24,4 +24,4 @@ jobs:
     - name: Build Tests
       run: dotnet build src/UnitTests/UnitTests.csproj --no-restore
     - name: Test
-      run: dotnet test src/UnitTests/UnitTests.csproj --no-build --verbosity normal
+      run: dotnet test src/UnitTests/UnitTests.csproj --no-build --framework Net5.0 /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:Threshold=100 /p:ThresholdType=line --verbosity normal 
