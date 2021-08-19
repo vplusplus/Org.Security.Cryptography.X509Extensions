@@ -20,6 +20,6 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
-      run: dotnet build --no-restore
+      run: dotnet build src/Org.Security.Cryptography.X509Extensions/Org.Security.Cryptography.X509Extensions.csproj --no-restore
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test src/UnitTests/UnitTests.csproj --verbosity normal
