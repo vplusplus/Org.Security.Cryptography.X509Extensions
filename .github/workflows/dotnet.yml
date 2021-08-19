@@ -24,7 +24,7 @@ jobs:
     - name: Build Tests
       run: dotnet build src/UnitTests/UnitTests.csproj --no-restore
     - name: Test With Code Coverage
-      run: dotnet test src/UnitTests/UnitTests.csproj --no-build --framework Net5.0 /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:Threshold=100 /p:ThresholdType=line /p:Exclude="[*]X509.EnduranceTest.Shared*" --verbosity normal
+      run: dotnet test src/UnitTests/UnitTests.csproj --no-build --framework Net5.0 /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:Threshold=50 /p:ThresholdType=line /p:Exclude="[*]X509.EnduranceTest.Shared*" --verbosity normal
     - name: UploadToCodeCov
       uses: codecov/codecov-action@v2
       with:

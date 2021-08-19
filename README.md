@@ -1,3 +1,5 @@
+[![codecov](https://codecov.io/gh/dotnet-demos/Org.Security.Cryptography.X509Extensions/branch/master/graph/badge.svg?token=AS2FV3ACUI)](https://codecov.io/gh/dotnet-demos/Org.Security.Cryptography.X509Extensions)
+
 # Org.Security.Cryptography.X509Extensions
 `X509Certificate2` Extensions for Encrypting and Signing using X509 certs.
 
@@ -24,3 +26,21 @@
      var decryptedStream = new MemoryStream();
      x509Certificate.DecryptStream(yourStreamToDecrypt, decryptedStream);  
  ```
+
+# Running tests
+
+Use `dotnet test` command or use the "Test Explorer" windows of Visual Studio.
+
+In order to view coverage, use any of the below methods.
+
+## Commandline
+
+Below command has codecoverage threshold 100. It will fail as of now.
+
+`dotnet test "src/UnitTests/UnitTests.csproj" --framework Net5.0 /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:Threshold=100 /p:ThresholdType=line /p:Exclude="[*]X509.EnduranceTest.Shared*"`
+
+It is excluding the shared test library.
+
+## Visual Studio
+
+Use the "Run Coverlet Report" extension as mentioned [here](https://www.code4it.dev/blog/code-coverage-vs-2019-coverlet)
