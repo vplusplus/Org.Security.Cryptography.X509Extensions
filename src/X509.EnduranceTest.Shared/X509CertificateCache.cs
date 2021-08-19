@@ -42,7 +42,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 
-namespace Org.Security.Cryptography
+namespace X509.EnduranceTest.Shared
 {
     /// <summary>
     /// Per-thread-cache of X509Certificate2 instances, identified by StoreName, StoreLocation, Thumbprint and an optional cache name.
