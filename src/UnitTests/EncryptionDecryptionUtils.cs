@@ -8,6 +8,38 @@ namespace UnitTests
 {
     class EncryptionDecryptionUtils
     {
+        internal static byte[] EncryptBytesWithTimestampUsingX509CertificateBasedEncryptor(X509Certificate2 x509Cert, byte[] inputData)
+        {
+            var encryptor = new X509CertificateBasedEncryptor();
+            using (var input = new MemoryStream(inputData))
+            using (var output = new MemoryStream(inputData.Length))
+            {
+                encryptor.EncryptStreamWithTimestamp(x509Cert, input, output);
+                output.Flush();
+                return output.ToArray();
+            }
+        }
+        internal static byte[] DecryptBytesWithTimestampValidationUsingX509CertificateBasedDecryptor(
+            byte[] inputData,
+            Func<string, X509Certificate2> certificateSelector,
+            TimeSpan? lifeSpan = null)
+        {
+            var decryptor = new X509CertificateBasedDecryptor();
+            using (var input = new MemoryStream(inputData))
+            using (var output = new MemoryStream(inputData.Length))
+            {
+                if (lifeSpan.HasValue)
+                {
+                    decryptor.DecryptStreamWithTimestampValidation(input, output, certificateSelector, lifeSpan.Value);
+                }
+                else
+                {
+                    decryptor.DecryptStreamWithTimestampValidation(input, output, certificateSelector);
+                }
+                output.Flush();
+                return output.ToArray();
+            }
+        }
         internal static byte[] EncryptBytesUsingX509CertificateBasedEncryptor(X509Certificate2 x509Cert, byte[] inputData)
         {
             var encryptor = new X509CertificateBasedEncryptor();
@@ -19,13 +51,13 @@ namespace UnitTests
                 return output.ToArray();
             }
         }
-        internal static byte[] DecryptBytesUsingX509CertificateBasedDecryptor(byte[] inputData, Func<string,X509Certificate2> certificateSelector)
+        internal static byte[] DecryptBytesUsingX509CertificateBasedDecryptor(byte[] inputData, Func<string, X509Certificate2> certificateSelector)
         {
             var decryptor = new X509CertificateBasedDecryptor();
             using (var input = new MemoryStream(inputData))
             using (var output = new MemoryStream(inputData.Length))
             {
-                decryptor.DecryptStream( input, output,certificateSelector);
+                decryptor.DecryptStream(input, output, certificateSelector);
                 output.Flush();
                 return output.ToArray();
             }

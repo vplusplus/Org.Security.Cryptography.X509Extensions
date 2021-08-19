@@ -7,18 +7,13 @@ namespace Org.Security.Cryptography
 {
     public class X509CertificateBasedDecryptor
     {
-        #region Defaults
-        const string DEF_DataEncryptionAlgorithmName = "Aes";
-        const int DEF_KeySize = 256;
-        const int DEF_BlockSize = 128;
-        #endregion
-
+ 
         #region public
         public void DecryptStream(
             Stream inputStream,
             Stream outputStream,
             Func<string, X509Certificate2> certificateSelector,
-            string dataEncryptionAlgorithmName = DEF_DataEncryptionAlgorithmName)
+            string dataEncryptionAlgorithmName = Defaults.DEF_DataEncryptionAlgorithmName)
         {
             ValidateDecryptParamsAndThrowException( inputStream, outputStream, dataEncryptionAlgorithmName);
 
@@ -26,8 +21,9 @@ namespace Org.Security.Cryptography
             var certificateThumbprint = Encoding.UTF8.GetString(thumprintArray);
             var certificateForKeyEncryption = certificateSelector(certificateThumbprint);
             if (null == certificateForKeyEncryption) throw new ArgumentNullException("The certificate cannot be null");
-            certificateForKeyEncryption.DecryptStream(inputStream, outputStream, dataEncryptionAlgorithmName);
+            certificateForKeyEncryption.DecryptStreamWithTimestampValidation(inputStream, outputStream, false, dataEncryptionAlgorithmName);
         }
+       
         public string DecryptBase64EncodedString(
             string valueToDecode,
             Func<string, X509Certificate2> certificateSelector)
@@ -37,6 +33,50 @@ namespace Org.Security.Cryptography
             using (var output = new MemoryStream(inputData.Length))
             {
                 this.DecryptStream( input, output,certificateSelector);
+                output.Flush();
+                var outputArray = output.ToArray();
+                return Encoding.UTF8.GetString(outputArray);
+            }
+        }
+        public void DecryptStreamWithTimestampValidation(
+           Stream inputStream,
+           Stream outputStream,
+           Func<string, X509Certificate2> certificateSelector,
+           string dataEncryptionAlgorithmName = Defaults.DEF_DataEncryptionAlgorithmName
+           )
+        {
+            this.DecryptStreamWithTimestampValidation(
+                inputStream, 
+                outputStream, 
+                certificateSelector, 
+                TimeSpan.FromMinutes(1), 
+                dataEncryptionAlgorithmName);
+        }
+        public void DecryptStreamWithTimestampValidation(
+           Stream inputStream,
+           Stream outputStream,
+           Func<string, X509Certificate2> certificateSelector,
+           TimeSpan lifeSpanOfInput,
+           string dataEncryptionAlgorithmName = Defaults.DEF_DataEncryptionAlgorithmName
+           )
+        {
+            ValidateDecryptParamsAndThrowException(inputStream, outputStream, dataEncryptionAlgorithmName);
+
+            var thumprintArray = inputStream.ReadLengthAndBytes(maxBytes: 2048);
+            var certificateThumbprint = Encoding.UTF8.GetString(thumprintArray);
+            var certificateForKeyEncryption = certificateSelector(certificateThumbprint);
+            if (null == certificateForKeyEncryption) throw new ArgumentNullException("The certificate cannot be null");
+            certificateForKeyEncryption.DecryptStreamWithTimestampValidation(inputStream, outputStream, true, lifeSpanOfInput, dataEncryptionAlgorithmName);
+        }
+        public string DecryptBase64EncodedStringWithTimestampValidation(
+            string valueToDecode,
+            Func<string, X509Certificate2> certificateSelector)
+        {
+            var inputData = Convert.FromBase64String(valueToDecode);
+            using (var input = new MemoryStream(inputData))
+            using (var output = new MemoryStream(inputData.Length))
+            {
+                this.DecryptStream(input, output, certificateSelector);
                 output.Flush();
                 var outputArray = output.ToArray();
                 return Encoding.UTF8.GetString(outputArray);

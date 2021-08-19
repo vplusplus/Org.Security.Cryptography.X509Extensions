@@ -20,9 +20,9 @@ namespace UnitTests
             byte[] input = Encoding.UTF8.GetBytes(TEST);
             //Act
             byte[] encryptedArray = EncryptionDecryptionUtils.EncryptBytesUsingX509CertificateBasedEncryptor(x509EncryptionCert, input);
-            byte[] decryptedOutput = EncryptionDecryptionUtils.DecryptBytesUsingX509CertificateBasedDecryptor( 
+            byte[] decryptedOutput = EncryptionDecryptionUtils.DecryptBytesUsingX509CertificateBasedDecryptor(
                 encryptedArray,
-                thumbprint=>x509DecryptionCert);
+                thumbprint => x509DecryptionCert);
             //Assert
             Assert.IsTrue(input.SequenceEqual(decryptedOutput));
         }
