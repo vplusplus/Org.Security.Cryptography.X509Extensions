@@ -2,8 +2,6 @@
 using System;
 using System.Linq;
 using System.Diagnostics;
-using System.IO;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -15,6 +13,7 @@ namespace UnitTests
     [TestClass]
     public class X509EncryptionTests
     {
+
         [TestMethod]
         public void WhenEncryptAndDecryptAreCalledWithCertsLoadedFromFiles_ShouldWork()
         {
@@ -24,7 +23,7 @@ namespace UnitTests
             var x509DecryptionCert = CertificateLoader.LoadFromFile("TestCertificates/hello.world.2048.net.pfx",MyConfig.TestCertficatePassword);
             byte[] input = Encoding.UTF8.GetBytes(TEST);
             //Act
-            byte[] output1 = DecryptBytes(x509DecryptionCert, EncryptBytes(x509EncryptionCert, input));
+            byte[] output1 = EncryptionDecryptionUtils.DecryptBytes(x509DecryptionCert, EncryptionDecryptionUtils.EncryptBytes(x509EncryptionCert, input));
             //Assert
             Assert.IsTrue(input.SequenceEqual(output1));
         }
@@ -38,7 +37,7 @@ namespace UnitTests
             var x509CertWithoutPrivateKey = CertificateLoader.LoadFromFile("TestCertificates/hello.world.2048.net.cer");
             byte[] input = Encoding.UTF8.GetBytes(TEST);
             //Act
-            byte[] output1 = DecryptBytes(x509CertWithoutPrivateKey, EncryptBytes(x509CertWithoutPrivateKey, input));
+            byte[] output1 = EncryptionDecryptionUtils.DecryptBytes(x509CertWithoutPrivateKey, EncryptionDecryptionUtils.EncryptBytes(x509CertWithoutPrivateKey, input));
             //Assert
             Assert.IsTrue(input.SequenceEqual(output1));
         }
@@ -52,9 +51,9 @@ namespace UnitTests
             var x509Cert = X509CertificateCache.GetCertificate(MyConfig.TestCertThumbPrint);
 
             byte[] input   = Encoding.UTF8.GetBytes(TEST);
-            byte[] output1 = DecryptBytes(x509Cert, EncryptBytes(x509Cert, input));
-            byte[] output2 = DecryptBytes(x509Cert, EncryptBytes(x509Cert, input));
-            byte[] output3 = DecryptBytes(x509Cert, EncryptBytes(x509Cert, input));
+            byte[] output1 = EncryptionDecryptionUtils.DecryptBytes(x509Cert, EncryptionDecryptionUtils.EncryptBytes(x509Cert, input));
+            byte[] output2 = EncryptionDecryptionUtils.DecryptBytes(x509Cert, EncryptionDecryptionUtils.EncryptBytes(x509Cert, input));
+            byte[] output3 = EncryptionDecryptionUtils.DecryptBytes(x509Cert, EncryptionDecryptionUtils.EncryptBytes(x509Cert, input));
 
             Assert.IsTrue(input.SequenceEqual(output1));
             Assert.IsTrue(input.SequenceEqual(output2));
@@ -79,15 +78,15 @@ namespace UnitTests
             // Perform a dry run
             // Capture Encrypted and Decrypted version
             var SampleData = TestDataGenerator.GenerateJunk(SampleDataSizeInKB);
-            var encryptedBytes = EncryptBytes(x509Cert, SampleData);
-            var decryptedBytes = DecryptBytes(x509Cert, encryptedBytes);
+            var encryptedBytes = EncryptionDecryptionUtils.EncryptBytes(x509Cert, SampleData);
+            var decryptedBytes = EncryptionDecryptionUtils.DecryptBytes(x509Cert, encryptedBytes);
 
             Assert.IsTrue(decryptedBytes.SequenceEqual(SampleData), "Decrypted bytes doesn't match original data.");
 
             var timer = Stopwatch.StartNew();
             for (int i=0; i< BenchmarkLoopCount; i++)
             {
-                EncryptBytes(x509Cert, decryptedBytes);
+                EncryptionDecryptionUtils.EncryptBytes(x509Cert, decryptedBytes);
             }
             timer.Stop();
 
@@ -105,7 +104,7 @@ namespace UnitTests
             timer = Stopwatch.StartNew();
             for (int i = 0; i < BenchmarkLoopCount; i++)
             {
-                DecryptBytes(x509Cert, encryptedBytes);
+                EncryptionDecryptionUtils.DecryptBytes(x509Cert, encryptedBytes);
             }
             timer.Stop();
 
@@ -120,30 +119,6 @@ namespace UnitTests
             Console.WriteLine($"{BenchmarkLoopCount:#,0} iterations @ {ratePerSec:#,0.0} per Sec. / Average: {avgMs:#,0.00} milliSec");
 
         }
-        //TODO: Move this to separate class
-        byte[] EncryptBytes(X509Certificate2 x509Cert, byte[] inputData)
-        {
-            using (var input = new MemoryStream(inputData))
-            using (var output = new MemoryStream(inputData.Length))
-            {
-                x509Cert.EncryptStream(input, output);
-                output.Flush();
-                return output.ToArray();
-            }
-        }
-        //TODO: Move this to separate class
-        byte[] DecryptBytes(X509Certificate2 x509Cert, byte[] inputData)
-        {
-            using (var input = new MemoryStream(inputData))
-            using (var output = new MemoryStream(inputData.Length))
-            {
-                x509Cert.DecryptStream(input, output);
-                output.Flush();
-                return output.ToArray();
-            }
-        }
-
-       
     }
 }
 
