@@ -31,7 +31,7 @@ namespace Org.Security.Cryptography
             outputStream.WriteLengthAndBytes(thumbprintArray);
             x509Cert.EncryptStream(inputStream, outputStream, true, dataEncryptionAlgorithmName, keySize, blockSize);
         }
-        #endregion
+        
         /// <summary>
         /// Encrypt input stream using the symmetric algorithm provided. 
         /// The key of symmetric algorithm is encrypted using the Asymmetric algorithm available on the given certificate.
@@ -71,7 +71,7 @@ namespace Org.Security.Cryptography
         /// The thumbprint of the certificate is attached as first thing in the encrypted data.
         /// Use this if decryptor doesn't know what certificate encryptor used. Mainly in internet/web/distributed systems scenarios where the certificate rotated out of sync.</remarks>
         /// </remarks>
-        public string EncryptStringToBase64EncodedString(X509Certificate2 x509Cert,
+        public string EncryptStringToBase64(X509Certificate2 x509Cert,
             string valueToEncode,
             string dataEncryptionAlgorithmName = Defaults.DEF_DataEncryptionAlgorithmName,
                                 int keySize = Defaults.DEF_KeySize,
@@ -87,5 +87,22 @@ namespace Org.Security.Cryptography
                 return Convert.ToBase64String(outputArray);
             }
         }
+        public string EncryptStringToBase64WithTimestamp(X509Certificate2 x509Cert,
+            string valueToEncode,
+            string dataEncryptionAlgorithmName = Defaults.DEF_DataEncryptionAlgorithmName,
+                                int keySize = Defaults.DEF_KeySize,
+                                int blockSize = Defaults.DEF_BlockSize)
+        {
+            var inputData = Encoding.UTF8.GetBytes(valueToEncode);
+            using (var input = new MemoryStream(inputData))
+            using (var output = new MemoryStream(inputData.Length))
+            {
+                this.EncryptStreamWithTimestamp(x509Cert, input, output, dataEncryptionAlgorithmName, keySize, blockSize);
+                output.Flush();
+                var outputArray = output.ToArray();
+                return Convert.ToBase64String(outputArray);
+            }
+        }
     }
+    #endregion
 }

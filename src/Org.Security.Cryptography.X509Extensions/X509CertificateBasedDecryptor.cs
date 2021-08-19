@@ -16,11 +16,7 @@ namespace Org.Security.Cryptography
             string dataEncryptionAlgorithmName = Defaults.DEF_DataEncryptionAlgorithmName)
         {
             ValidateDecryptParamsAndThrowException( inputStream, outputStream, dataEncryptionAlgorithmName);
-
-            var thumprintArray = inputStream.ReadLengthAndBytes(maxBytes: 2048);
-            var certificateThumbprint = Encoding.UTF8.GetString(thumprintArray);
-            var certificateForKeyEncryption = certificateSelector(certificateThumbprint);
-            if (null == certificateForKeyEncryption) throw new ArgumentNullException("The certificate cannot be null");
+            var certificateForKeyEncryption = GetCertificateFromStream(inputStream, certificateSelector);
             certificateForKeyEncryption.DecryptStreamWithTimestampValidation(inputStream, outputStream, false, dataEncryptionAlgorithmName);
         }
        
@@ -62,12 +58,11 @@ namespace Org.Security.Cryptography
         {
             ValidateDecryptParamsAndThrowException(inputStream, outputStream, dataEncryptionAlgorithmName);
 
-            var thumprintArray = inputStream.ReadLengthAndBytes(maxBytes: 2048);
-            var certificateThumbprint = Encoding.UTF8.GetString(thumprintArray);
-            var certificateForKeyEncryption = certificateSelector(certificateThumbprint);
-            if (null == certificateForKeyEncryption) throw new ArgumentNullException("The certificate cannot be null");
+            X509Certificate2 certificateForKeyEncryption = GetCertificateFromStream(inputStream, certificateSelector);
+            
             certificateForKeyEncryption.DecryptStreamWithTimestampValidation(inputStream, outputStream, true, lifeSpanOfInput, dataEncryptionAlgorithmName);
         }
+
         public string DecryptBase64EncodedStringWithTimestampValidation(
             string valueToDecode,
             Func<string, X509Certificate2> certificateSelector)
@@ -76,18 +71,29 @@ namespace Org.Security.Cryptography
             using (var input = new MemoryStream(inputData))
             using (var output = new MemoryStream(inputData.Length))
             {
-                this.DecryptStream(input, output, certificateSelector);
+                this.DecryptStreamWithTimestampValidation(input, output, certificateSelector);
                 output.Flush();
                 var outputArray = output.ToArray();
                 return Encoding.UTF8.GetString(outputArray);
             }
         }
         #endregion
+
+        #region Private helpers
+        private static X509Certificate2 GetCertificateFromStream(Stream inputStream, Func<string, X509Certificate2> certificateSelector)
+        {
+            var thumprintArray = inputStream.ReadLengthAndBytes(maxBytes: 2048);
+            var certificateThumbprint = Encoding.UTF8.GetString(thumprintArray);
+            var certificateForKeyEncryption = certificateSelector(certificateThumbprint);
+            if (null == certificateForKeyEncryption) throw new ArgumentNullException("The certificate cannot be null");
+            return certificateForKeyEncryption;
+        }
         private static void ValidateDecryptParamsAndThrowException(Stream inputStream, Stream outputStream, string dataEncryptionAlgorithmName)
         {
             if (null == inputStream) throw new ArgumentNullException(nameof(inputStream));
             if (null == outputStream) throw new ArgumentNullException(nameof(outputStream));
             if (null == dataEncryptionAlgorithmName) throw new ArgumentNullException(nameof(dataEncryptionAlgorithmName));
         }
+        #endregion
     }
 }

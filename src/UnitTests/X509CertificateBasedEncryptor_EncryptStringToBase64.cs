@@ -5,7 +5,7 @@ using X509.EnduranceTest.Shared;
 namespace UnitTests
 {
     [TestClass]
-    public class X509CertificateBasedEncryptor_EncryptStringToBase64EncodedString
+    public class X509CertificateBasedEncryptor_EncryptStringToBase64
     {
         [TestMethod]
         public void WhenItIsCalledWithProperParameters_ShouldEncrypt()
@@ -15,7 +15,7 @@ namespace UnitTests
             var x509EncryptionCert = CertificateLoader.LoadFromFile("TestCertificates/hello.world.2048.net.cer");
             var x509DecryptionCert = CertificateLoader.LoadFromFile("TestCertificates/hello.world.2048.net.pfx", MyConfig.TestCertficatePassword);
             //Act
-            var encryptedBase64 = new X509CertificateBasedEncryptor().EncryptStringToBase64EncodedString(x509EncryptionCert, TEST);
+            var encryptedBase64 = new X509CertificateBasedEncryptor().EncryptStringToBase64(x509EncryptionCert, TEST);
             var decryptedOutput = new X509CertificateBasedDecryptor().DecryptBase64EncodedString(
                 encryptedBase64,
                 thumbprint => x509DecryptionCert);
@@ -30,7 +30,7 @@ namespace UnitTests
             const string TEST = "A";
             var x509EncryptionCert = CertificateLoader.LoadFromFile("TestCertificates/hello.world.2048.net.cer");
             //Act
-            var encryptedBase64 = new X509CertificateBasedEncryptor().EncryptStringToBase64EncodedString(x509EncryptionCert, TEST);
+            var encryptedBase64 = new X509CertificateBasedEncryptor().EncryptStringToBase64(x509EncryptionCert, TEST);
             //Assert
             int expectedEncryptedArraySize = 776;
             Assert.AreEqual(expectedEncryptedArraySize, encryptedBase64.Length, $"Expected encrypted size for letter A is {expectedEncryptedArraySize}, but actual {encryptedBase64.Length}");
@@ -42,7 +42,7 @@ namespace UnitTests
             const string input = "JoyGeorgeKunjikkuru";
             var x509EncryptionCert = CertificateLoader.LoadFromFile("TestCertificates/hello.world.2048.net.cer");
             //Act
-            var encryptedBase64 = new X509CertificateBasedEncryptor().EncryptStringToBase64EncodedString(x509EncryptionCert, input);
+            var encryptedBase64 = new X509CertificateBasedEncryptor().EncryptStringToBase64(x509EncryptionCert, input);
             //Assert
             int expectedEncryptedArraySize = 796;
             Assert.AreEqual(expectedEncryptedArraySize, encryptedBase64.Length, $"Expected encrypted size for letter A is {expectedEncryptedArraySize}, but actual {encryptedBase64.Length}");
