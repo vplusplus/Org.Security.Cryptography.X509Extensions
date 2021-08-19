@@ -1,0 +1,54 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29905.134
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{EAA2E090-9112-4E79-B25C-030FF4B6D25D}"
+	ProjectSection(SolutionItems) = preProject
+		ReadMe-FIPS.md = ReadMe-FIPS.md
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Org.Security.Cryptography.X509Extensions", "src\Org.Security.Cryptography.X509Extensions\Org.Security.Cryptography.X509Extensions.csproj", "{1EEFA765-F0B2-4C93-A543-F3DC6410F60E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnitTests", "src\UnitTests\UnitTests.csproj", "{870A984C-F0FB-438C-8FAF-E5ECD1E1A680}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "X509.EnduranceTest.Shared", "src\X509.EnduranceTest.Shared\X509.EnduranceTest.Shared.csproj", "{F2511529-D3CA-4050-AD04-1605EA0AF5B0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "X509.EnduranceTest.NetCore", "src\X509.EnduranceTest.NetCore\X509.EnduranceTest.NetCore.csproj", "{776D6CE9-3D52-4CF2-8050-A22FC9D6D79C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "X509.EnduranceTest.NetFramework", "src\X509.EnduranceTest.NetFramework\X509.EnduranceTest.NetFramework.csproj", "{9389DAC3-E2E1-41BA-BE5C-34F3F8930DFC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1EEFA765-F0B2-4C93-A543-F3DC6410F60E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1EEFA765-F0B2-4C93-A543-F3DC6410F60E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1EEFA765-F0B2-4C93-A543-F3DC6410F60E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1EEFA765-F0B2-4C93-A543-F3DC6410F60E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{870A984C-F0FB-438C-8FAF-E5ECD1E1A680}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{870A984C-F0FB-438C-8FAF-E5ECD1E1A680}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{870A984C-F0FB-438C-8FAF-E5ECD1E1A680}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{870A984C-F0FB-438C-8FAF-E5ECD1E1A680}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F2511529-D3CA-4050-AD04-1605EA0AF5B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2511529-D3CA-4050-AD04-1605EA0AF5B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2511529-D3CA-4050-AD04-1605EA0AF5B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2511529-D3CA-4050-AD04-1605EA0AF5B0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{776D6CE9-3D52-4CF2-8050-A22FC9D6D79C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{776D6CE9-3D52-4CF2-8050-A22FC9D6D79C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{776D6CE9-3D52-4CF2-8050-A22FC9D6D79C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{776D6CE9-3D52-4CF2-8050-A22FC9D6D79C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9389DAC3-E2E1-41BA-BE5C-34F3F8930DFC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9389DAC3-E2E1-41BA-BE5C-34F3F8930DFC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9389DAC3-E2E1-41BA-BE5C-34F3F8930DFC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9389DAC3-E2E1-41BA-BE5C-34F3F8930DFC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {854A5078-7E41-474A-827E-7FA6204BF5CA}
+	EndGlobalSection
+EndGlobal
