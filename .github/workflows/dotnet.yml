@@ -1,21 +1,17 @@
 name: .NET
-
 on:
   push:
     branches: [ master ]
   pull_request:
     branches: [ master ]
-
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
-    - name: Setup .NET Core 3.1	
-      uses: actions/setup-dotnet@v1	
-      with:	
+    - name: Setup .NET Core 3.1
+      uses: actions/setup-dotnet@v1
+      with:
         dotnet-version: 3.1.x
     - name: Setup .NET 5
       uses: actions/setup-dotnet@v1
@@ -23,7 +19,9 @@ jobs:
         dotnet-version: 5.0.x
     - name: Restore dependencies
       run: dotnet restore
-    - name: Build
+    - name: Build Library
       run: dotnet build src/Org.Security.Cryptography.X509Extensions/Org.Security.Cryptography.X509Extensions.csproj --no-restore
+    - name: Build Tests
+      run: dotnet build src/UnitTests/UnitTests.csproj --no-restore
     - name: Test
-      run: dotnet test src/UnitTests/UnitTests.csproj --verbosity normal
+      run: dotnet test src/UnitTests/UnitTests.csproj --no-build --verbosity normal
