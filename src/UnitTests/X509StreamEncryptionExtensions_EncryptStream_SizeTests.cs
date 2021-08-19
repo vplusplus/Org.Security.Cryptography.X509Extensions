@@ -15,7 +15,7 @@ namespace UnitTests
             var x509EncryptionCert = CertificateLoader.LoadFromFile("TestCertificates/hello.world.2048.net.cer");
             byte[] input = Encoding.UTF8.GetBytes(sampleData);
             //Act
-            byte[] output1 = EncryptionDecryptionUtils.EncryptBytes(x509EncryptionCert, input);
+            byte[] output1 = EncryptionDecryptionUtils.EncryptBytesUsingExtensionMethod(x509EncryptionCert, input);
             //Assert
             int expectedEncryptedArraySize = 536;
             Assert.AreEqual(expectedEncryptedArraySize, output1.Length, $"Expected encrypted size for letter A is {expectedEncryptedArraySize}, but actual {output1.Length}");
@@ -29,7 +29,7 @@ namespace UnitTests
             var x509EncryptionCert = CertificateLoader.LoadFromFile("TestCertificates/hello.world.2048.net.cer");
             byte[] input = Encoding.UTF8.GetBytes(fullName);
             //Act
-            byte[] output1 = EncryptionDecryptionUtils.EncryptBytes(x509EncryptionCert, input);
+            byte[] output1 = EncryptionDecryptionUtils.EncryptBytesUsingExtensionMethod(x509EncryptionCert, input);
             //Assert
             int expectedEncryptedArraySize = 552;
             Assert.AreEqual(expectedEncryptedArraySize, output1.Length, $"Expected encrypted size for letter A is {expectedEncryptedArraySize}, but actual {output1.Length}");
@@ -42,7 +42,7 @@ namespace UnitTests
             var x509EncryptionCert = CertificateLoader.LoadFromFile("TestCertificates/hello.world.2048.net.cer");
             var inputArray = TestDataGenerator.GenerateJunk(SampleDataSizeInKB);
             //Act
-            byte[] output1 = EncryptionDecryptionUtils.EncryptBytes(x509EncryptionCert, inputArray);
+            byte[] output1 = EncryptionDecryptionUtils.EncryptBytesUsingExtensionMethod(x509EncryptionCert, inputArray);
             //Assert
             int expectedEncryptedArraySize = 8728;
             Assert.AreEqual(expectedEncryptedArraySize, output1.Length, $"Expected encrypted size for letter A is {expectedEncryptedArraySize}, but actual {output1.Length}");

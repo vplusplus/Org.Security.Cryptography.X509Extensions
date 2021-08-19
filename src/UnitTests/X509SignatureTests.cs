@@ -16,7 +16,6 @@ namespace UnitTests.POCs
         {
             const string TestData = "Hello world";
 
-            var cert = X509CertificateCache.GetCertificate(MyConfig.TestCertThumbPrint);
             var payload = Encoding.UTF8.GetBytes(TestData);
 
             string[] HashAlgorithmNames = { "MD5", "SHA1", "SHA256", "SHA384", "SHA512" };
@@ -30,11 +29,11 @@ namespace UnitTests.POCs
                     Console.WriteLine($"Hash: {name} {hash.Length * 8} bits / {hash.Length} BYTES");
 
                     // Sign
-                    var signature = cert.CreateSignature(hash);
+                    var signature = MyConfig.SigningCertificate.CreateSignature(hash);
                     Console.WriteLine($"Signature: {signature.Length * 8} bits / {signature.Length} BYTES");
 
                     // Verify
-                    var good = cert.VerifySignature(hash, signature);
+                    var good = MyConfig.VerifyCertificate.VerifySignature(hash, signature);
                     Assert.IsTrue(good);
                 }
             }

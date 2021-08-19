@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 
 namespace Org.Security.Cryptography
 {
@@ -12,18 +13,25 @@ namespace Org.Security.Cryptography
     /// </summary>
     public static class X509StreamEncryptionExtensions
     {
-        // Defaults
+        #region Defaults
         const string    DEF_DataEncryptionAlgorithmName = "Aes";
         const int       DEF_KeySize = 256;
         const int       DEF_BlockSize = 128;
+        #endregion
 
+        #region Public 
         /// <summary>
         /// The X509 Certificate public key serves as KeyEncryptionKey (KEK).
         /// Data is encrypted using a randomly generated DataEncryptionKey and IV.
         /// Writes encrypted DataEncryptionKey, encrypted IV and encrypted data to the output stream.
         /// NOTE: The OutputStream will be disposed at the end of this call.
         /// </summary>
-        public static void EncryptStream(this X509Certificate2 x509Cert, Stream inputStream, Stream outputStream, string dataEncryptionAlgorithmName = DEF_DataEncryptionAlgorithmName, int keySize = DEF_KeySize, int blockSize = DEF_BlockSize)
+        public static void EncryptStream(this X509Certificate2 x509Cert, 
+                                Stream inputStream, 
+                                Stream outputStream, 
+                                string dataEncryptionAlgorithmName = DEF_DataEncryptionAlgorithmName, 
+                                int keySize = DEF_KeySize, 
+                                int blockSize = DEF_BlockSize)
         {
             if (null == x509Cert) throw new ArgumentNullException(nameof(x509Cert));
             if (null == inputStream) throw new ArgumentNullException(nameof(inputStream));
@@ -35,7 +43,7 @@ namespace Org.Security.Cryptography
             // We didn't acquire the X509 Certificate; Caller is responsible for disposing X509Certificate2. 
             // Did endurance test of 1 mil cycles, found NO HANDLE leak.
             var keyEncryption = x509Cert.GetPublicKeyAsymmetricAlgorithm();
-
+           
             using (var dataEncryption = SymmetricAlgorithm.Create(dataEncryptionAlgorithmName))
             {
                 if (null == dataEncryption) throw new Exception($"SymmetricAlgorithm.Create('{dataEncryptionAlgorithmName}') returned null.");
@@ -53,12 +61,12 @@ namespace Org.Security.Cryptography
         /// Decrypts the data using the DataEncryptionKey and IV. 
         /// NOTE: The InputStream will be disposed at the end of this call.
         /// </summary>
-        public static void DecryptStream(this X509Certificate2 x509Cert, Stream inputStream, Stream outputStream, string dataEncryptionAlgorithmName = DEF_DataEncryptionAlgorithmName)
+        public static void DecryptStream(this X509Certificate2 x509Cert, 
+            Stream inputStream, 
+            Stream outputStream, 
+            string dataEncryptionAlgorithmName = DEF_DataEncryptionAlgorithmName)
         {
-            if (null == x509Cert) throw new ArgumentNullException(nameof(x509Cert));
-            if (null == inputStream) throw new ArgumentNullException(nameof(inputStream));
-            if (null == outputStream) throw new ArgumentNullException(nameof(outputStream));
-            if (null == dataEncryptionAlgorithmName) throw new ArgumentNullException(nameof(dataEncryptionAlgorithmName));
+            ValidateDecryptParamsAndThrowException(x509Cert, inputStream, outputStream, dataEncryptionAlgorithmName);
 
             // Decrypt using Private key.
             // DO NOT Dispose this; Doing so will render the X509Certificate use-less, if the caller had cached the cert.
@@ -75,14 +83,26 @@ namespace Org.Security.Cryptography
             }
         }
 
+        #endregion
+
+        private static void ValidateDecryptParamsAndThrowException(X509Certificate2 x509Cert, Stream inputStream, Stream outputStream, string dataEncryptionAlgorithmName)
+        {
+            if (null == x509Cert) throw new ArgumentNullException(nameof(x509Cert));
+            if (null == inputStream) throw new ArgumentNullException(nameof(inputStream));
+            if (null == outputStream) throw new ArgumentNullException(nameof(outputStream));
+            if (null == dataEncryptionAlgorithmName) throw new ArgumentNullException(nameof(dataEncryptionAlgorithmName));
+        }
+
         //...............................................................................
         #region Encrypt/Decrypt the Key (Asymmetric) and the Data (Symmetric)
         //...............................................................................
 
-        static void EncryptStream(Stream inputStream, Stream outputStream, AsymmetricAlgorithm keyEncryption, SymmetricAlgorithm dataEncryption)
+        static void EncryptStream(
+            Stream inputStream, 
+            Stream outputStream, 
+            AsymmetricAlgorithm keyEncryption, 
+            SymmetricAlgorithm dataEncryption)
         {
-            if (null == inputStream) throw new ArgumentNullException(nameof(inputStream));
-            if (null == outputStream) throw new ArgumentNullException(nameof(outputStream));
             if (null == keyEncryption) throw new ArgumentNullException(nameof(keyEncryption));
             if (null == dataEncryption) throw new ArgumentNullException(nameof(dataEncryption));
 
@@ -93,6 +113,8 @@ namespace Org.Security.Cryptography
             // The DataEncryptionKey and the IV.
             var DEK = dataEncryption.Key ?? throw new Exception("SymmetricAlgorithm.Key was NULL");
             var IV = dataEncryption.IV ?? throw new Exception("SymmetricAlgorithm.IV was NULL");
+
+            
 
             // Encrypt the DataEncryptionKey and the IV
             var keyFormatter = new RSAPKCS1KeyExchangeFormatter(keyEncryption);
@@ -141,44 +163,7 @@ namespace Org.Security.Cryptography
 
         #endregion
 
-        //...............................................................................
-        #region Utils: WriteLengthAndBytes(), ReadLengthAndBytes()
-        //...............................................................................
-        static void WriteLengthAndBytes(this Stream outputStream, byte[] bytes)
-        {
-            if (null == outputStream) throw new ArgumentNullException(nameof(outputStream));
-            if (null == bytes) throw new ArgumentNullException(nameof(bytes));
-
-            // Int32 length to exactly-four-bytes array.
-            var length = BitConverter.GetBytes((Int32)bytes.Length);
-
-            // Write the four-byte-length followed by the data.
-            outputStream.Write(length, 0, length.Length);
-            outputStream.Write(bytes, 0, bytes.Length);
-        }
-
-        static byte[] ReadLengthAndBytes(this Stream inputStream, int maxBytes)
-        {
-            if (null == inputStream) throw new ArgumentNullException(nameof(inputStream));
-
-            // Read an Int32, exactly four bytes.
-            var arrLength = new byte[4];
-            var bytesRead = inputStream.Read(arrLength, 0, 4);
-            if (bytesRead != 4) throw new Exception("Unexpected end of InputStream. Expecting 4 bytes.");
-
-            // Length of data to read.
-            var length = BitConverter.ToInt32(arrLength, 0);
-            if (length > maxBytes) throw new Exception($"Unexpected data size {length:#,0} bytes. Expecting NOT more than {maxBytes:#,0} bytes.");
-
-            // Read suggested no of bytes...
-            var bytes = new byte[length];
-            bytesRead = inputStream.Read(bytes, 0, bytes.Length);
-            if (bytesRead != bytes.Length) throw new Exception($"Unexpected end of input stream. Expecting {bytes.Length:#,0} bytes.");
-
-            return bytes;
-        }
-
-        #endregion
+        
 
     }
 }

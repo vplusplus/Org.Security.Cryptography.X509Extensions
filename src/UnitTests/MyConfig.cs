@@ -1,6 +1,8 @@
 ﻿
 using System;
 using System.Configuration;
+using System.Security.Cryptography.X509Certificates;
+using X509.EnduranceTest.Shared;
 
 namespace UnitTests
 {
@@ -14,5 +16,10 @@ namespace UnitTests
         /// </summary>
         /// <remarks> Never hard code passwords in the code like this. This is just test</remarks>
         internal static string TestCertficatePassword => "MyP@ssw0rd";
+        internal static X509Certificate2 EncryptionCertificate=> CertificateLoader.LoadFromFile("TestCertificates/hello.world.2048.net.cer");
+        internal static X509Certificate2 DecryptionCertificate => CertificateLoader.LoadFromFile("TestCertificates/hello.world.2048.net.pfx", MyConfig.TestCertficatePassword);
+        internal static X509Certificate2 VerifyCertificate => CertificateLoader.LoadFromFile("TestCertificates/hello.world.2048.net.cer");
+        internal static X509Certificate2 SigningCertificate => CertificateLoader.LoadFromFile("TestCertificates/hello.world.2048.net.pfx", MyConfig.TestCertficatePassword);
+
     }
 }

@@ -19,11 +19,11 @@ namespace UnitTests
         {
             //Arrange
             const string TEST = "Hello World!";
-            var x509EncryptionCert = CertificateLoader.LoadFromFile("TestCertificates/hello.world.2048.net.cer");
-            var x509DecryptionCert = CertificateLoader.LoadFromFile("TestCertificates/hello.world.2048.net.pfx",MyConfig.TestCertficatePassword);
             byte[] input = Encoding.UTF8.GetBytes(TEST);
             //Act
-            byte[] output1 = EncryptionDecryptionUtils.DecryptBytes(x509DecryptionCert, EncryptionDecryptionUtils.EncryptBytes(x509EncryptionCert, input));
+            byte[] output1 = EncryptionDecryptionUtils.DecryptBytesUsingExtensionMethod(
+                MyConfig.DecryptionCertificate, 
+                EncryptionDecryptionUtils.EncryptBytesUsingExtensionMethod(MyConfig.EncryptionCertificate, input));
             //Assert
             Assert.IsTrue(input.SequenceEqual(output1));
         }
@@ -37,23 +37,28 @@ namespace UnitTests
             var x509CertWithoutPrivateKey = CertificateLoader.LoadFromFile("TestCertificates/hello.world.2048.net.cer");
             byte[] input = Encoding.UTF8.GetBytes(TEST);
             //Act
-            byte[] output1 = EncryptionDecryptionUtils.DecryptBytes(x509CertWithoutPrivateKey, EncryptionDecryptionUtils.EncryptBytes(x509CertWithoutPrivateKey, input));
+            byte[] output1 = EncryptionDecryptionUtils.DecryptBytesUsingExtensionMethod(
+                x509CertWithoutPrivateKey, 
+                EncryptionDecryptionUtils.EncryptBytesUsingExtensionMethod(x509CertWithoutPrivateKey, input));
             //Assert
             Assert.IsTrue(input.SequenceEqual(output1));
         }
-        //TODO: Below tests kept as is to test for now. Change later to have the tests run independently.
         // Ideally, it doesn't matter where from the certificate loaded as long as the X509Certificate2 object is available to tests.
         [TestMethod]
         public void X509_TripleRoundTripTest()
         {
             const string TEST = "Hello World!";
 
-            var x509Cert = X509CertificateCache.GetCertificate(MyConfig.TestCertThumbPrint);
-
             byte[] input   = Encoding.UTF8.GetBytes(TEST);
-            byte[] output1 = EncryptionDecryptionUtils.DecryptBytes(x509Cert, EncryptionDecryptionUtils.EncryptBytes(x509Cert, input));
-            byte[] output2 = EncryptionDecryptionUtils.DecryptBytes(x509Cert, EncryptionDecryptionUtils.EncryptBytes(x509Cert, input));
-            byte[] output3 = EncryptionDecryptionUtils.DecryptBytes(x509Cert, EncryptionDecryptionUtils.EncryptBytes(x509Cert, input));
+            byte[] output1 = EncryptionDecryptionUtils.DecryptBytesUsingExtensionMethod(
+                MyConfig.DecryptionCertificate, 
+                EncryptionDecryptionUtils.EncryptBytesUsingExtensionMethod(MyConfig.EncryptionCertificate, input));
+            byte[] output2 = EncryptionDecryptionUtils.DecryptBytesUsingExtensionMethod(
+                 MyConfig.DecryptionCertificate,
+                 EncryptionDecryptionUtils.EncryptBytesUsingExtensionMethod(MyConfig.EncryptionCertificate, input));
+            byte[] output3 = EncryptionDecryptionUtils.DecryptBytesUsingExtensionMethod(
+                            MyConfig.DecryptionCertificate,
+                            EncryptionDecryptionUtils.EncryptBytesUsingExtensionMethod(MyConfig.EncryptionCertificate, input));
 
             Assert.IsTrue(input.SequenceEqual(output1));
             Assert.IsTrue(input.SequenceEqual(output2));
@@ -72,21 +77,19 @@ namespace UnitTests
             const int SampleDataSizeInKB = 8;
             const int BenchmarkLoopCount = 1000;
 
-            var x509Cert = X509CertificateCache.GetCertificate(MyConfig.TestCertThumbPrint);
-
             // Generate some random data
             // Perform a dry run
             // Capture Encrypted and Decrypted version
             var SampleData = TestDataGenerator.GenerateJunk(SampleDataSizeInKB);
-            var encryptedBytes = EncryptionDecryptionUtils.EncryptBytes(x509Cert, SampleData);
-            var decryptedBytes = EncryptionDecryptionUtils.DecryptBytes(x509Cert, encryptedBytes);
+            var encryptedBytes = EncryptionDecryptionUtils.EncryptBytesUsingExtensionMethod(MyConfig.EncryptionCertificate, SampleData);
+            var decryptedBytes = EncryptionDecryptionUtils.DecryptBytesUsingExtensionMethod(MyConfig.DecryptionCertificate, encryptedBytes);
 
             Assert.IsTrue(decryptedBytes.SequenceEqual(SampleData), "Decrypted bytes doesn't match original data.");
 
             var timer = Stopwatch.StartNew();
             for (int i=0; i< BenchmarkLoopCount; i++)
             {
-                EncryptionDecryptionUtils.EncryptBytes(x509Cert, decryptedBytes);
+                EncryptionDecryptionUtils.EncryptBytesUsingExtensionMethod(MyConfig.EncryptionCertificate, decryptedBytes);
             }
             timer.Stop();
 
@@ -104,7 +107,7 @@ namespace UnitTests
             timer = Stopwatch.StartNew();
             for (int i = 0; i < BenchmarkLoopCount; i++)
             {
-                EncryptionDecryptionUtils.DecryptBytes(x509Cert, encryptedBytes);
+                EncryptionDecryptionUtils.DecryptBytesUsingExtensionMethod(MyConfig.DecryptionCertificate, encryptedBytes);
             }
             timer.Stop();
 
