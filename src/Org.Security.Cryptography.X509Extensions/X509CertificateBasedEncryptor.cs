@@ -21,17 +21,16 @@ namespace Org.Security.Cryptography
         /// <param name="blockSize"></param>
         public void EncryptStreamWithTimestamp(
             X509Certificate2 x509Cert,
-            MemoryStream inputStream,
-            MemoryStream outputStream,
+            Stream inputStream,
+            Stream outputStream,
             string dataEncryptionAlgorithmName = Defaults.DEF_DataEncryptionAlgorithmName,
                                 int keySize = Defaults.DEF_KeySize,
                                 int blockSize = Defaults.DEF_BlockSize)
         {
-            var thumbprintArray = Encoding.UTF8.GetBytes(x509Cert.Thumbprint);
-            outputStream.WriteLengthAndBytes(thumbprintArray);
+            ValidateAndWritePlainThumprintToOutputStream(x509Cert, outputStream);
             x509Cert.EncryptStream(inputStream, outputStream, true, dataEncryptionAlgorithmName, keySize, blockSize);
         }
-        
+
         /// <summary>
         /// Encrypt input stream using the symmetric algorithm provided. 
         /// The key of symmetric algorithm is encrypted using the Asymmetric algorithm available on the given certificate.
@@ -53,8 +52,7 @@ namespace Org.Security.Cryptography
                                 int keySize = Defaults.DEF_KeySize,
                                 int blockSize = Defaults.DEF_BlockSize)
         {
-            var thumbprintArray = Encoding.UTF8.GetBytes(x509Cert.Thumbprint);
-            outputStream.WriteLengthAndBytes(thumbprintArray);
+            ValidateAndWritePlainThumprintToOutputStream(x509Cert, outputStream);
             x509Cert.EncryptStream(inputStream, outputStream, false, dataEncryptionAlgorithmName, keySize, blockSize);
         }
         /// <summary>
@@ -103,6 +101,16 @@ namespace Org.Security.Cryptography
                 return Convert.ToBase64String(outputArray);
             }
         }
+
+        #endregion
+
+        #region Private helpers
+        private static void ValidateAndWritePlainThumprintToOutputStream(X509Certificate2 x509Cert, Stream outputStream)
+        {
+            if (null == x509Cert) throw new ArgumentNullException(nameof(x509Cert));
+            var thumbprintArray = Encoding.UTF8.GetBytes(x509Cert.Thumbprint);
+            outputStream.WriteLengthAndBytes(thumbprintArray);
+        }
+        #endregion
     }
-    #endregion
 }

@@ -12,9 +12,8 @@ namespace Org.Security.Cryptography
         /// </summary>
         internal static AsymmetricAlgorithm GetPublicKeyAsymmetricAlgorithm(this X509Certificate2 x509Cert)
         {
-            if (null == x509Cert) throw new ArgumentNullException(nameof(x509Cert));
+            // Not sure what scenario the thumnprint will be null. If the cert is loaded it would have thumbprint
             if (null == x509Cert.Thumbprint) throw new ArgumentNullException("X509Certificate2.Thumbprint was NULL.");
-
             try
             {
                 try
@@ -24,7 +23,7 @@ namespace Org.Security.Cryptography
                 }
                 catch (CryptographicException)
                 {
-                    // [SLOWER] 
+                    // [SLOWER] - Seems rare scenario
                     return x509Cert.GetRSAPublicKey() ?? throw new Exception($"X509Certificate2.GetRSAPublicKey() returned NULL");
                 }
             }

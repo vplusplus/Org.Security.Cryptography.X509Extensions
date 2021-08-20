@@ -1,8 +1,10 @@
 ﻿
 using System;
+using System.IO;
 using System.Linq;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Org.Security.Cryptography;
 using X509.EnduranceTest.Shared;
 
 namespace UnitTests
@@ -10,6 +12,41 @@ namespace UnitTests
     [TestClass]
     public class X509CertificateBasedEncryptor_EncryptStream
     {
+        #region Validations
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void WhenEncryptionCertificateParameterIsNull_ThrowArgumentNullException()
+        {
+            //Arrange
+            //Act
+            new X509CertificateBasedEncryptor().EncryptStream(null, new MemoryStream(), new MemoryStream());
+            //Assert
+        }
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void WhenTheInputStreamParameterIsNull_ThrowArgumentNullException()
+        {
+            //Arrange
+            const string TEST = "Hello World!";
+            byte[] input = Encoding.UTF8.GetBytes(TEST);
+            //Act
+            new X509CertificateBasedEncryptor().EncryptStream(MyConfig.EncryptionCertificate, null, new MemoryStream());
+            //Assert
+        }
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void WhenTheOutputStreamParameterIsNull_ThrowArgumentNullException()
+        {
+            //Arrange
+            const string TEST = "Hello World!";
+            byte[] input = Encoding.UTF8.GetBytes(TEST);
+            //Act
+            new X509CertificateBasedEncryptor().EncryptStream(MyConfig.EncryptionCertificate,  new MemoryStream(),null);
+            //Assert
+        }
+        #endregion
+
+        #region Positive / happy scenarios
         [TestMethod]
         public void WhenItIsCalledWithProperParameters_ShouldEncrypt()
         {
@@ -26,5 +63,6 @@ namespace UnitTests
             //Assert
             Assert.IsTrue(input.SequenceEqual(decryptedOutput));
         }
+        #endregion
     }
 }

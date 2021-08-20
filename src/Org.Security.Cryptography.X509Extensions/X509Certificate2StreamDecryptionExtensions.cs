@@ -6,7 +6,7 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace Org.Security.Cryptography
 {
-    public static class X509StreamDecryptionExtensions
+    public static class X509Certificate2StreamDecryptionExtensions
     {
         #region Public
         /// <summary>

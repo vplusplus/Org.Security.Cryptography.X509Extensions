@@ -11,7 +11,7 @@ namespace Org.Security.Cryptography
     /// Extensions to encrypt/decrypt Streams using X509 Certificates.
     /// DEFAULT: AES-256/128 for Data encryption.
     /// </summary>
-    public static class X509StreamEncryptionExtensions
+    public static class X509Certificate2StreamEncryptionExtensions
     {
         #region Public 
         /// <summary>

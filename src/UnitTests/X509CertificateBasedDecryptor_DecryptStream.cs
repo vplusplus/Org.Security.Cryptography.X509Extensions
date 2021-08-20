@@ -24,8 +24,56 @@ namespace UnitTests
             byte[] input = Encoding.UTF8.GetBytes(TEST);
             //Act
             new X509CertificateBasedDecryptor().DecryptStream(null, new MemoryStream(),              
-                thumbprint => null);
+                thumbprint => MyConfig.DecryptionCertificate);
             //Assert
+        }
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void WhenTheOutputStreamParameterIsNull_ThrowArgumentNullException()
+        {
+            //Arrange
+            const string TEST = "Hello World!";
+            var x509EncryptionCert = CertificateLoader.LoadFromFile("TestCertificates/hello.world.2048.net.cer");
+            var x509DecryptionCert = CertificateLoader.LoadFromFile("TestCertificates/hello.world.2048.net.pfx", MyConfig.TestCertficatePassword);
+            byte[] input = Encoding.UTF8.GetBytes(TEST);
+            //Act
+            new X509CertificateBasedDecryptor().DecryptStream( new MemoryStream(), null,
+                thumbprint => MyConfig.DecryptionCertificate);
+            //Assert
+        }
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void WhenTheDataEncryptionAlgorithmNameParameterIsNull_ThrowArgumentNullException()
+        {
+            //Arrange
+            const string TEST = "Hello World!";
+            var x509EncryptionCert = CertificateLoader.LoadFromFile("TestCertificates/hello.world.2048.net.cer");
+            var x509DecryptionCert = CertificateLoader.LoadFromFile("TestCertificates/hello.world.2048.net.pfx", MyConfig.TestCertficatePassword);
+            byte[] input = Encoding.UTF8.GetBytes(TEST);
+            //Act
+            new X509CertificateBasedDecryptor().DecryptStream(
+                new MemoryStream(), 
+                new MemoryStream(),
+                thumbprint => MyConfig.DecryptionCertificate,
+                null);
+            //Assert
+        }
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void WhenTheCertificateSelectorParamIsNull_ThrowArgumentNullException()
+        {
+            //Arrange
+            const string TEST = "Hello World!";
+            var x509EncryptionCert = CertificateLoader.LoadFromFile("TestCertificates/hello.world.2048.net.cer");
+            var x509DecryptionCert = CertificateLoader.LoadFromFile("TestCertificates/hello.world.2048.net.pfx", MyConfig.TestCertficatePassword);
+            byte[] input = Encoding.UTF8.GetBytes(TEST);
+            //Act
+            byte[] encryptedArray = EncryptionDecryptionUtils.EncryptBytesUsingX509CertificateBasedEncryptor(x509EncryptionCert, input);
+            byte[] decryptedOutput = EncryptionDecryptionUtils.DecryptBytesUsingX509CertificateBasedDecryptor(
+                encryptedArray,
+                null);
+            //Assert
+            Assert.IsTrue(input.SequenceEqual(decryptedOutput));
         }
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]

@@ -7,7 +7,7 @@ namespace Org.Security.Cryptography
 {
     public class X509CertificateBasedDecryptor
     {
- 
+
         #region public
         public void DecryptStream(
             Stream inputStream,
@@ -15,11 +15,11 @@ namespace Org.Security.Cryptography
             Func<string, X509Certificate2> certificateSelector,
             string dataEncryptionAlgorithmName = Defaults.DEF_DataEncryptionAlgorithmName)
         {
-            ValidateDecryptParamsAndThrowException( inputStream, outputStream, dataEncryptionAlgorithmName);
+            ValidateDecryptParamsAndThrowException(inputStream, outputStream, dataEncryptionAlgorithmName, certificateSelector);
             var certificateForKeyEncryption = GetCertificateFromStream(inputStream, certificateSelector);
             certificateForKeyEncryption.DecryptStreamWithTimestampValidation(inputStream, outputStream, false, dataEncryptionAlgorithmName);
         }
-       
+
         public string DecryptBase64EncodedString(
             string valueToDecode,
             Func<string, X509Certificate2> certificateSelector)
@@ -28,7 +28,7 @@ namespace Org.Security.Cryptography
             using (var input = new MemoryStream(inputData))
             using (var output = new MemoryStream(inputData.Length))
             {
-                this.DecryptStream( input, output,certificateSelector);
+                this.DecryptStream(input, output, certificateSelector);
                 output.Flush();
                 var outputArray = output.ToArray();
                 return Encoding.UTF8.GetString(outputArray);
@@ -42,10 +42,10 @@ namespace Org.Security.Cryptography
            )
         {
             this.DecryptStreamWithTimestampValidation(
-                inputStream, 
-                outputStream, 
-                certificateSelector, 
-                TimeSpan.FromMinutes(1), 
+                inputStream,
+                outputStream,
+                certificateSelector,
+                TimeSpan.FromMinutes(1),
                 dataEncryptionAlgorithmName);
         }
         public void DecryptStreamWithTimestampValidation(
@@ -56,10 +56,10 @@ namespace Org.Security.Cryptography
            string dataEncryptionAlgorithmName = Defaults.DEF_DataEncryptionAlgorithmName
            )
         {
-            ValidateDecryptParamsAndThrowException(inputStream, outputStream, dataEncryptionAlgorithmName);
+            ValidateDecryptParamsAndThrowException(inputStream, outputStream, dataEncryptionAlgorithmName, certificateSelector);
 
             X509Certificate2 certificateForKeyEncryption = GetCertificateFromStream(inputStream, certificateSelector);
-            
+
             certificateForKeyEncryption.DecryptStreamWithTimestampValidation(inputStream, outputStream, true, lifeSpanOfInput, dataEncryptionAlgorithmName);
         }
 
@@ -88,8 +88,9 @@ namespace Org.Security.Cryptography
             if (null == certificateForKeyEncryption) throw new ArgumentNullException("The certificate cannot be null");
             return certificateForKeyEncryption;
         }
-        private static void ValidateDecryptParamsAndThrowException(Stream inputStream, Stream outputStream, string dataEncryptionAlgorithmName)
+        private static void ValidateDecryptParamsAndThrowException(Stream inputStream, Stream outputStream, string dataEncryptionAlgorithmName, Func<string, X509Certificate2> certificateSelector)
         {
+            if (null == certificateSelector) throw new ArgumentNullException(nameof(certificateSelector));
             if (null == inputStream) throw new ArgumentNullException(nameof(inputStream));
             if (null == outputStream) throw new ArgumentNullException(nameof(outputStream));
             if (null == dataEncryptionAlgorithmName) throw new ArgumentNullException(nameof(dataEncryptionAlgorithmName));

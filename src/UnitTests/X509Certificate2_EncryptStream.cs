@@ -1,12 +1,59 @@
-﻿using System.Text;
+﻿using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using X509.EnduranceTest.Shared;
+using Org.Security.Cryptography;
+using System.IO;
+using System;
+using System.Security.Cryptography;
 
 namespace UnitTests
 {
     [TestClass]
     public class X509Certificate2_EncryptStream
     {
+        #region Validation tests
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void WhenEncryptionCertificateIsNull_ThrowsArgumentNullException()
+        {
+            //Arrange
+            X509Certificate2 certificate2 = null;
+            //Act
+            certificate2.EncryptStream(new MemoryStream(), new MemoryStream());
+            //Assert
+        }
+        [TestMethod]
+        [ExpectedException(typeof(CryptographicException))]
+        public void WhenEncryptionCertificateIsNotLoaded_ThrowsArgumentNullException()
+        {
+            //Arrange
+            X509Certificate2 certificate2 = new X509Certificate2();
+            //Act
+            certificate2.EncryptStream(new MemoryStream(), new MemoryStream());
+            //Assert
+        }
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void WhenInputStreamIsNull_ThrowsArgumentNullException()
+        {
+            //Arrange
+            //Act
+            MyConfig.EncryptionCertificate.EncryptStream(null, new MemoryStream());
+            //Assert
+        }
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentNullException))]
+        public void WhenOutputStreamIsNull_ThrowsArgumentNullException()
+        {
+            //Arrange
+            //Act
+            MyConfig.EncryptionCertificate.EncryptStream( new MemoryStream(),null);
+            //Assert
+        }
+        #endregion
+
+        #region Encrypted contentSize tests
         [TestMethod]
         public void WhenSigleLetterAIsEncrypted_ResultSizeWillBe536()
         {
@@ -47,6 +94,7 @@ namespace UnitTests
             int expectedEncryptedArraySize = 8728;
             Assert.AreEqual(expectedEncryptedArraySize, output1.Length, $"Expected encrypted size for letter A is {expectedEncryptedArraySize}, but actual {output1.Length}");
         }
+        #endregion
     }
 }
 
