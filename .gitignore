@@ -13,6 +13,9 @@
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
 
+#logs
+.log
+
 # Mono auto generated files
 mono_crash.*
 
@@ -169,6 +172,10 @@ DocProject/Help/*.hhk
 DocProject/Help/*.hhp
 DocProject/Help/Html2
 DocProject/Help/html
+
+#DocFx files
+
+/**/_site
 
 # Click-Once directory
 publish/

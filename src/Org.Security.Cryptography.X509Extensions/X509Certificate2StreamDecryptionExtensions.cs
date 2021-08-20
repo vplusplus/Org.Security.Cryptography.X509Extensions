@@ -45,7 +45,6 @@ namespace Org.Security.Cryptography
         public static void DecryptStreamWithTimestampValidation(this X509Certificate2 x509Cert,
         Stream inputStream,
         Stream outputStream,
-        bool validateTimestamp,
         TimeSpan lifeSpan,
         string dataEncryptionAlgorithmName = Defaults.DEF_DataEncryptionAlgorithmName)
         {
@@ -60,7 +59,7 @@ namespace Org.Security.Cryptography
             {
                 if (null == dataEncryption) throw new Exception($"SymmetricAlgorithm.Create('{dataEncryptionAlgorithmName}') returned null.");
                 // KeySize/blockSize will be selected when we assign key/IV later.
-                DecryptStream(inputStream, outputStream, validateTimestamp, lifeSpan, keyEncryption, dataEncryption);
+                DecryptStream(inputStream, outputStream, true, lifeSpan, keyEncryption, dataEncryption);
             }
         }
         #endregion

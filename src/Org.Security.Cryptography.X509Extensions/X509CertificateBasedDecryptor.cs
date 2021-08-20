@@ -60,7 +60,7 @@ namespace Org.Security.Cryptography
 
             X509Certificate2 certificateForKeyEncryption = GetCertificateFromStream(inputStream, certificateSelector);
 
-            certificateForKeyEncryption.DecryptStreamWithTimestampValidation(inputStream, outputStream, true, lifeSpanOfInput, dataEncryptionAlgorithmName);
+            certificateForKeyEncryption.DecryptStreamWithTimestampValidation(inputStream, outputStream, lifeSpanOfInput, dataEncryptionAlgorithmName);
         }
 
         public string DecryptBase64EncodedStringWithTimestampValidation(

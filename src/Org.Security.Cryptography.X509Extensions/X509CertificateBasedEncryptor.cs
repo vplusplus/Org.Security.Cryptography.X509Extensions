@@ -68,6 +68,7 @@ namespace Org.Security.Cryptography
         /// The thumbprint of the certificate is attached as first thing in the encrypted data.
         /// Use this if decryptor doesn't know what certificate encryptor used. Mainly in internet/web/distributed systems scenarios where the certificate rotated out of sync.</remarks>
         /// </remarks>
+        //TODO: Consider using CryptoStream to convert into base64 https://stackoverflow.com/questions/19134062/encode-a-filestream-to-base64-with-c-sharp
         public string EncryptStringToBase64(X509Certificate2 x509Cert,
             string valueToEncode,
             string dataEncryptionAlgorithmName = Defaults.DEF_DataEncryptionAlgorithmName,

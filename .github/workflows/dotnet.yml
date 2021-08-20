@@ -30,3 +30,9 @@ jobs:
       with:
         files: src/UnitTests/coverage.Net5.0.opencover.xml
         verbose: true
+    - name: Deploy
+      uses: JamesIves/github-pages-deploy-action@releases/v3
+      with:
+        GITHUB_TOKEN: $
+        BRANCH: gh-pages
+        FOLDER: _site
