@@ -3,7 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Org.Security.Cryptography;
 using X509.EnduranceTest.Shared;
 
-namespace UnitTests
+namespace UnitTests.Encryption
 {
     [TestClass]
     public class X509CertificateBasedEncryptor_EncryptStreamWithTimestamp

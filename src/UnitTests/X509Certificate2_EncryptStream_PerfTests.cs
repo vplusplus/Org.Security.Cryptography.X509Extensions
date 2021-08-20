@@ -5,7 +5,7 @@ using System.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using X509.EnduranceTest.Shared;
 
-namespace UnitTests
+namespace UnitTests.Encryption
 {
     [TestClass]
     public class X509Certificate2_EncryptStream_PerfTests

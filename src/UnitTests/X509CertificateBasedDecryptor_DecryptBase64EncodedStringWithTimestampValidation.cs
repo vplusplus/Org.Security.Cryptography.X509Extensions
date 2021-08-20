@@ -2,7 +2,7 @@
 using Org.Security.Cryptography;
 using X509.EnduranceTest.Shared;
 
-namespace UnitTests
+namespace UnitTests.Decryption
 {
     [TestClass]
     public class X509CertificateBasedDecryptor_DecryptBase64EncodedStringWithTimestampValidation

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace UnitTests
+namespace UnitTests.Decryption
 {
     [TestClass]
     public class X509CertificateBasedDecryptor_DecryptStreamWithTimestampValidation

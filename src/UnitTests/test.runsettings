@@ -2,7 +2,7 @@
 <RunSettings>
   <!-- configuration elements -->
   <RunConfiguration>
-    <TargetFrameworkVersion>Net5.0</TargetFrameworkVersion>
+    <!--<TargetFrameworkVersion>Net5.0</TargetFrameworkVersion>-->
   </RunConfiguration>
   <DataCollectionRunSettings>
     <DataCollectors>
@@ -10,9 +10,9 @@
         <Configuration>
           <CodeCoverage>
             <ModulePaths>
-              <Exclude>
-                <ModulePath>.*Shared.*</ModulePath>
-              </Exclude>
+              <Include>
+                <ModulePath>.*Org.Security.Cryptography.X509Extensions.dll</ModulePath>
+              </Include>
             </ModulePaths>
             <!-- We recommend you do not change the following values: -->
             <UseVerifiableInstrumentation>True</UseVerifiableInstrumentation>

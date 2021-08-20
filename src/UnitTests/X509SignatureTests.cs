@@ -6,7 +6,7 @@ using System.Text;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace UnitTests.POCs
+namespace UnitTests.Signature
 {
     [TestClass]
     public class X509SignatureTests

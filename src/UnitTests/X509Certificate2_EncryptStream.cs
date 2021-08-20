@@ -7,7 +7,7 @@ using System.IO;
 using System;
 using System.Security.Cryptography;
 
-namespace UnitTests
+namespace UnitTests.Encryption
 {
     [TestClass]
     public class X509Certificate2_EncryptStream

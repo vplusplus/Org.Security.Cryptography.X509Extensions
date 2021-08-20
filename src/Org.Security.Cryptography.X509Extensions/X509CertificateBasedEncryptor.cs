@@ -44,7 +44,6 @@ namespace Org.Security.Cryptography
         /// <remarks>The thumbprint of the certificate is attached as first thing in the encrypted data. 
         /// Use this if decryptor doesn't know what certificate encryptor used. Mainly in internet/web/distributed systems scenarios where the certificate rotated out of sync.
         /// </remarks>
-        //TODO: Add the timestamp of encryption to avoid replay attacks if its used to transmit authentication details between client and server.
         public void EncryptStream(X509Certificate2 x509Cert,
                                 Stream inputStream,
                                 Stream outputStream,
