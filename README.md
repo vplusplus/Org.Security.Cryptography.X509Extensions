@@ -1,4 +1,10 @@
-[![codecov](https://codecov.io/gh/dotnet-demos/Org.Security.Cryptography.X509Extensions/branch/master/graph/badge.svg?token=AS2FV3ACUI)](https://codecov.io/gh/dotnet-demos/Org.Security.Cryptography.X509Extensions)
+
+| Area          |      Badges  |
+|:--------------|:-------------|
+| Build         | ![.Net workflow](https://github.com/dotnet-demos/Org.Security.Cryptography.X509Extensions/actions/workflows/dotnet.yml/badge.svg) |
+| Code          | ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/dotnet-demos/Org.Security.Cryptography.X509Extensions) ![GitHub repo size](https://img.shields.io/github/repo-size/dotnet-demos/Org.Security.Cryptography.X509Extensions) [![](https://tokei.rs/b1/github/dotnet-demos/Org.Security.Cryptography.X509Extensions)](https://github.com/dotnet-demos/Org.Security.Cryptography.X509Extensions) |
+| Code Quality  | [![Maintainability](https://api.codeclimate.com/v1/badges/b64e91057b6c905e0347/maintainability)](https://codeclimate.com/github/dotnet-demos/Org.Security.Cryptography.X509Extensions/maintainability) |
+| Test          | [![codecov](https://codecov.io/gh/dotnet-demos/Org.Security.Cryptography.X509Extensions/branch/master/graph/badge.svg?token=AS2FV3ACUI)](https://codecov.io/gh/dotnet-demos/Org.Security.Cryptography.X509Extensions) |
 
 # Org.Security.Cryptography.X509Extensions
 `X509Certificate2` Extensions for Encrypting and Signing using X509 certs.
