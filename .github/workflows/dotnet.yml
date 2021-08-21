@@ -39,4 +39,4 @@ jobs:
       with:
         GITHUB_TOKEN: $
         BRANCH: gh-pages
-        FOLDER: _site
+        FOLDER: src/Org.Security.Cryptography.X509Extensions/_site
