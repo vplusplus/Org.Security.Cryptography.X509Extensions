@@ -32,7 +32,7 @@
      var decryptedStream = new MemoryStream();
      x509Certificate.DecryptStream(yourStreamToDecrypt, decryptedStream);  
  ```
-For other APIs, please refer the unit tests.
+For other APIs, please refer the unit tests or the [API documentation](https://dotnet-demos.github.io/Org.Security.Cryptography.X509Extensions/api/index.html)
 
 # Running tests
 
