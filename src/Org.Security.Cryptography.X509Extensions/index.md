@@ -1,4 +1,13 @@
-# This is the **HOMEPAGE**.
-Refer to [Markdown](http://daringfireball.net/projects/markdown/) for how to write markdown files.
+# X509Certificate2 Extensions and Classes for cryptography
+
+Welcome to the **X509Certificate2 Extensions and Classes for cryptography**
+
 ## Quick Start Notes:
-1. Add images to the *images* folder if the file is referencing an image.
+
+- Compile the libray
+- Refer to your project
+
+## Documentation
+
+Refer [Api Documentation](api/index.md)
+

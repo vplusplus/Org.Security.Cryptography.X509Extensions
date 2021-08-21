@@ -66,7 +66,7 @@ namespace Org.Security.Cryptography
         /// <returns> The encrypted content in base64 format.</returns>
         /// <remarks>
         /// The thumbprint of the certificate is attached as first thing in the encrypted data.
-        /// Use this if decryptor doesn't know what certificate encryptor used. Mainly in internet/web/distributed systems scenarios where the certificate rotated out of sync.</remarks>
+        /// Use this if decryptor doesn't know what certificate encryptor used. Mainly in internet/web/distributed systems scenarios where the certificate rotated out of sync.
         /// </remarks>
         public string EncryptStringToBase64(X509Certificate2 x509Cert,
             string valueToEncode,
