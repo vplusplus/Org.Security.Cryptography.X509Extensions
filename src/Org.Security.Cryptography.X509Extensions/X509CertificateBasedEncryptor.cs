@@ -5,6 +5,9 @@ using System.Text;
 
 namespace Org.Security.Cryptography
 {
+    /// <summary>
+    /// Provides capabilities to encrypt data using X509 certificate.
+    /// </summary>
     public class X509CertificateBasedEncryptor
     {
         #region public
@@ -13,7 +16,7 @@ namespace Org.Security.Cryptography
         /// The key of symmetric algorithm is encrypted using the Asymmetric algorithm available on the given certificate.
         /// It writes the UTC timestamp of encryption. This can be used to validate during decryption to avoid replay attacks in client server scenarios.
         /// </summary>
-        /// <param name="x509Cert"></param>
+        /// <param name="x509Cert">Certificate to encrypt</param>
         /// <param name="inputStream"></param>
         /// <param name="outputStream"></param>
         /// <param name="dataEncryptionAlgorithmName"></param>
@@ -35,7 +38,7 @@ namespace Org.Security.Cryptography
         /// Encrypt input stream using the symmetric algorithm provided. 
         /// The key of symmetric algorithm is encrypted using the Asymmetric algorithm available on the given certificate.
         /// </summary>
-        /// <param name="x509Cert"></param>
+        /// <param name="x509Cert">Certificate to encrypt</param>
         /// <param name="inputStream"></param>
         /// <param name="outputStream"></param>
         /// <param name="dataEncryptionAlgorithmName"></param>
@@ -58,12 +61,12 @@ namespace Org.Security.Cryptography
         /// Encrypt input string using the symmetric algorithm provided. 
         /// The key of symmetric algorithm is encrypted using the Asymmetric algorithm available on the given <paramref name="x509Cert"/>.
         /// </summary>
-        /// <param name="x509Cert"></param>
+        /// <param name="x509Cert">Certificate to encrypt</param>
         /// <param name="valueToEncode"></param>
         /// <param name="dataEncryptionAlgorithmName"></param>
         /// <param name="keySize"></param>
         /// <param name="blockSize"></param>
-        /// <returns> The encrypted content in base64 format.</returns>
+        /// <returns>The encrypted content in base64 format.</returns>
         /// <remarks>
         /// The thumbprint of the certificate is attached as first thing in the encrypted data.
         /// Use this if decryptor doesn't know what certificate encryptor used. Mainly in internet/web/distributed systems scenarios where the certificate rotated out of sync.
@@ -85,6 +88,17 @@ namespace Org.Security.Cryptography
                 return Convert.ToBase64String(outputArray);
             }
         }
+        /// <summary>
+        /// Encrypt input string using the symmetric algorithm provided including the timestamp of emcryption. 
+        /// The key of symmetric algorithm is encrypted using the Asymmetric algorithm available on the given <paramref name="x509Cert"/>.
+        /// </summary>
+        /// <param name="x509Cert">Certificate to encrypt</param>
+        /// <param name="valueToEncode"></param>
+        /// <param name="dataEncryptionAlgorithmName"></param>
+        /// <param name="keySize"></param>
+        /// <param name="blockSize"></param>
+        /// <returns>The encrypted content in base64 format.</returns>
+        /// <remarks>The timestamped encrypted payload is good in client-server or internet scenarios to avoid re-play attacks.</remarks>
         public string EncryptStringToBase64WithTimestamp(X509Certificate2 x509Cert,
             string valueToEncode,
             string dataEncryptionAlgorithmName = Defaults.DEF_DataEncryptionAlgorithmName,

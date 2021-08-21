@@ -1,2 +1,3 @@
-# PLACEHOLDER
-TODO: Add .NET projects to the *src* folder and run `docfx` to generate **REAL** *API Documentation*!
+# Welcome to Org.Security.Cryptography
+
+This library contains classes and extension methods to work with cryptography in .Net. Feel free to explore the APIs.

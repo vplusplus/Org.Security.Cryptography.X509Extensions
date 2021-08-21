@@ -1,2 +1,4 @@
 - name: Introduction
   href: intro.md
+- name: Federal Information Processing Standard
+  href: FIPS.md

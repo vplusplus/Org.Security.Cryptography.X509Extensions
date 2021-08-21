@@ -6,7 +6,6 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{EAA2E090-9112-4E79-B25C-030FF4B6D25D}"
 	ProjectSection(SolutionItems) = preProject
 		.github\workflows\dotnet.yml = .github\workflows\dotnet.yml
-		ReadMe-FIPS.md = ReadMe-FIPS.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Org.Security.Cryptography.X509Extensions", "src\Org.Security.Cryptography.X509Extensions\Org.Security.Cryptography.X509Extensions.csproj", "{1EEFA765-F0B2-4C93-A543-F3DC6410F60E}"
