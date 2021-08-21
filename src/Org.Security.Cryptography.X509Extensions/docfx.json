@@ -6,7 +6,7 @@
           "files": [
             "**.csproj"
           ],
-          "src": "C:\\source\\repos\\dotnet-demos\\Org.Security.Cryptography.X509Extensions\\src\\Org.Security.Cryptography.X509Extensions"
+          "src": "../"
         }
       ],
       "exclude": [ "**/bin/**", "**/obj/**" ],
