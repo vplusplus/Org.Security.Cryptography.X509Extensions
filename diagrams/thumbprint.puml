@@ -6,9 +6,9 @@ package payload {
     object Contents{
         Length Of certiticate thumbprint (Int32)
         Unencrypted certificate thumbprint
-        Length Of DEK (Int32)
+        Length Of encrypted DEK (Int32)
         Asymmemetric Encrypted DEK(Data Encryption Key)  
-        Length Of IV (Int32)
+        Length Of encrypted IV (Int32)
         Asymmemetric Encrypted IV (Initialization Vector)
         Symmetric Encrypted Data using DEK
     }
