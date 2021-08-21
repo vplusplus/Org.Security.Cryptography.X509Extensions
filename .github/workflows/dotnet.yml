@@ -34,10 +34,6 @@ jobs:
       with:
         files: src/UnitTests/coverage.Net5.0.opencover.xml
         verbose: true
-    - name: Run docfx to generate doc
-      uses: nikeee/docfx-action@master
-      with:
-        args: src/Org.Security.Cryptography.X509Extensions/docfx.json
     - name: Deploy
       uses: JamesIves/github-pages-deploy-action@releases/v3
       with:
