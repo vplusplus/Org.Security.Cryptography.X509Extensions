@@ -5,8 +5,9 @@ using System.Security.Cryptography;
 using System.Text;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Security.Cryptography.X509Certificates;
 
-namespace UnitTests.Signature
+namespace UnitTests.SignAndVerify
 {
     [TestClass]
     public class X509SignatureTests

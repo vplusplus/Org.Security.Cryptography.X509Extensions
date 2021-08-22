@@ -45,8 +45,6 @@ namespace Org.Security.Cryptography
 
         static string InferHashAlgorithm(byte[] hash)
         {
-            if (null == hash) throw new ArgumentNullException(nameof(hash));
-
             // MD5      128 bit / 16 bytes
             // SHA1     160 bit / 20 bytes
             // SHA224   224 bit / 28 bytes
