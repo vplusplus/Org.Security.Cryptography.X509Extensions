@@ -15,18 +15,18 @@ jobs:
         dotnet-version: 5.0.x
     - name: Restore dependencies
       run: dotnet restore
-    - name: Build Library
+    - name: Build Library 🔧
       run: dotnet build src/Org.Security.Cryptography.X509Extensions/Org.Security.Cryptography.X509Extensions.csproj --no-restore
-    - name: Build Tests
+    - name: Build Tests 🧪
       run: dotnet build src/UnitTests/UnitTests.csproj --no-restore
     - name: Test With Code Coverage
       run: dotnet test src/UnitTests/UnitTests.csproj --no-build --framework Net5.0 /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:Threshold=80 /p:ThresholdType=line /p:Exclude="[*]X509.EnduranceTest.Shared*" --verbosity normal
-    - name: UploadToCodeCov
+    - name: UploadToCodeCov ⇪
       uses: codecov/codecov-action@v2
       with:
         files: src/UnitTests/coverage.Net5.0.opencover.xml
         verbose: true
-    - name: Deploy
+    - name: Deploy 🚀
       uses: JamesIves/github-pages-deploy-action@releases/v3
       with:
         GITHUB_TOKEN: $
