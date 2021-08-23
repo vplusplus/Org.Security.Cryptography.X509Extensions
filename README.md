@@ -7,7 +7,7 @@
 | Test          | [![codecov](https://codecov.io/gh/dotnet-demos/Org.Security.Cryptography.X509Extensions/branch/master/graph/badge.svg?token=AS2FV3ACUI)](https://codecov.io/gh/dotnet-demos/Org.Security.Cryptography.X509Extensions) |
 
 # Org.Security.Cryptography.X509Extensions
-`X509Certificate2` Extensions for Encrypting and Signing using X509 certs.
+`X509Certificate2` Extensions and classes for Encrypting and Signing using X509 certs.
 
 # Getting started
 
@@ -34,6 +34,10 @@
  ```
 For other APIs, please refer the unit tests or the [API documentation](https://dotnet-demos.github.io/Org.Security.Cryptography.X509Extensions/api/index.html)
 
+# Documentation
+
+[Documentation site](https://dotnet-demos.github.io/Org.Security.Cryptography.X509Extensions/) has [articles](https://dotnet-demos.github.io/Org.Security.Cryptography.X509Extensions/articles/intro.html) as well as [API documentation](https://dotnet-demos.github.io/Org.Security.Cryptography.X509Extensions/api/index.html).
+
 # Running tests
 
 Use `dotnet test` command or use the "Test Explorer" windows of Visual Studio.
@@ -50,4 +54,4 @@ It is excluding the shared test library.
 
 ## Visual Studio
 
-Use the "Run Coverlet Report" extension as mentioned [here](https://www.code4it.dev/blog/code-coverage-vs-2019-coverlet)
+Use the "Run Coverlet Report" extension as mentioned [here](https://www.code4it.dev/blog/code-coverage-vs-2019-coverlet).
