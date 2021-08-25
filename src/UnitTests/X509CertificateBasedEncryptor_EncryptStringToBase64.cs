@@ -12,8 +12,8 @@ namespace UnitTests.Encryption
         {
             //Arrange
             const string TEST = "Hello World!";
-            var x509EncryptionCert = CertificateLoader.LoadFromFile("TestCertificates/hello.world.2048.net.cer");
-            var x509DecryptionCert = CertificateLoader.LoadFromFile("TestCertificates/hello.world.2048.net.pfx", MyConfig.TestCertficatePassword);
+            var x509EncryptionCert = MyConfig.EncryptionCertificate;
+            var x509DecryptionCert = MyConfig.DecryptionCertificate;
             //Act
             var encryptedBase64 = new X509CertificateBasedEncryptor().EncryptStringToBase64(x509EncryptionCert, TEST);
             var decryptedOutput = new X509CertificateBasedDecryptor().DecryptBase64EncodedString(

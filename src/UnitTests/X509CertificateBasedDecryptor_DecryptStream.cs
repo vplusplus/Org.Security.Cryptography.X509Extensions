@@ -19,8 +19,8 @@ namespace UnitTests.Decryption
         {
             //Arrange
             const string TEST = "Hello World!";
-            var x509EncryptionCert = CertificateLoader.LoadFromFile("TestCertificates/hello.world.2048.net.cer");
-            var x509DecryptionCert = CertificateLoader.LoadFromFile("TestCertificates/hello.world.2048.net.pfx", MyConfig.TestCertficatePassword);
+            var x509EncryptionCert = MyConfig.EncryptionCertificate;
+            var x509DecryptionCert = MyConfig.DecryptionCertificate;
             byte[] input = Encoding.UTF8.GetBytes(TEST);
             //Act
             new X509CertificateBasedDecryptor().DecryptStream(null, new MemoryStream(),              
@@ -33,8 +33,8 @@ namespace UnitTests.Decryption
         {
             //Arrange
             const string TEST = "Hello World!";
-            var x509EncryptionCert = CertificateLoader.LoadFromFile("TestCertificates/hello.world.2048.net.cer");
-            var x509DecryptionCert = CertificateLoader.LoadFromFile("TestCertificates/hello.world.2048.net.pfx", MyConfig.TestCertficatePassword);
+            var x509EncryptionCert = MyConfig.EncryptionCertificate;
+            var x509DecryptionCert = MyConfig.DecryptionCertificate;
             byte[] input = Encoding.UTF8.GetBytes(TEST);
             //Act
             new X509CertificateBasedDecryptor().DecryptStream( new MemoryStream(), null,
@@ -47,8 +47,8 @@ namespace UnitTests.Decryption
         {
             //Arrange
             const string TEST = "Hello World!";
-            var x509EncryptionCert = CertificateLoader.LoadFromFile("TestCertificates/hello.world.2048.net.cer");
-            var x509DecryptionCert = CertificateLoader.LoadFromFile("TestCertificates/hello.world.2048.net.pfx", MyConfig.TestCertficatePassword);
+            var x509EncryptionCert = MyConfig.EncryptionCertificate;
+            var x509DecryptionCert = MyConfig.DecryptionCertificate;
             byte[] input = Encoding.UTF8.GetBytes(TEST);
             //Act
             new X509CertificateBasedDecryptor().DecryptStream(
@@ -64,8 +64,8 @@ namespace UnitTests.Decryption
         {
             //Arrange
             const string TEST = "Hello World!";
-            var x509EncryptionCert = CertificateLoader.LoadFromFile("TestCertificates/hello.world.2048.net.cer");
-            var x509DecryptionCert = CertificateLoader.LoadFromFile("TestCertificates/hello.world.2048.net.pfx", MyConfig.TestCertficatePassword);
+            var x509EncryptionCert = MyConfig.EncryptionCertificate;
+            var x509DecryptionCert = MyConfig.DecryptionCertificate;
             byte[] input = Encoding.UTF8.GetBytes(TEST);
             //Act
             byte[] encryptedArray = EncryptionDecryptionUtils.EncryptBytesUsingX509CertificateBasedEncryptor(x509EncryptionCert, input);
@@ -81,8 +81,8 @@ namespace UnitTests.Decryption
         {
             //Arrange
             const string TEST = "Hello World!";
-            var x509EncryptionCert = CertificateLoader.LoadFromFile("TestCertificates/hello.world.2048.net.cer");
-            var x509DecryptionCert = CertificateLoader.LoadFromFile("TestCertificates/hello.world.2048.net.pfx", MyConfig.TestCertficatePassword);
+            var x509EncryptionCert = MyConfig.EncryptionCertificate;
+            var x509DecryptionCert = MyConfig.DecryptionCertificate;
             byte[] input = Encoding.UTF8.GetBytes(TEST);
             //Act
             byte[] encryptedArray = EncryptionDecryptionUtils.EncryptBytesUsingX509CertificateBasedEncryptor(x509EncryptionCert, input);

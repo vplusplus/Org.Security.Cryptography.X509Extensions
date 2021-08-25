@@ -39,9 +39,7 @@ namespace Org.Security.Cryptography
         /// </summary>
         internal static AsymmetricAlgorithm GetPrivateKeyAsymmetricAlgorithm(this X509Certificate2 x509Cert)
         {
-            if (null == x509Cert) throw new ArgumentNullException(nameof(x509Cert));
             if (null == x509Cert.Thumbprint) throw new ArgumentNullException("X509Certificate2.Thumbprint was NULL.");
-
             try
             {
                 try

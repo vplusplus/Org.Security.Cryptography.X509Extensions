@@ -6,7 +6,7 @@ using X509.EnduranceTest.Shared;
 
 namespace UnitTests
 {
-    internal static class MyConfig
+    public static class MyConfig
     {
         internal static string TestCertThumbPrint => 
             ConfigurationManager.AppSettings["X509.ThumbPrint"] ?? 
@@ -19,10 +19,10 @@ namespace UnitTests
         /// <summary>
         /// TODO: Below certificates expire on 2023-08-17. Need to recreate certificate then to continue using this test project
         /// </summary>
-        internal static X509Certificate2 EncryptionCertificate=> CertificateLoader.LoadFromFile("TestCertificates/hello.world.2048.net.cer");
-        internal static X509Certificate2 DecryptionCertificate => CertificateLoader.LoadFromFile("TestCertificates/hello.world.2048.net.pfx", MyConfig.TestCertficatePassword);
-        internal static X509Certificate2 VerifyCertificate => CertificateLoader.LoadFromFile("TestCertificates/hello.world.2048.net.cer");
-        internal static X509Certificate2 SigningCertificate => CertificateLoader.LoadFromFile("TestCertificates/hello.world.2048.net.pfx", MyConfig.TestCertficatePassword);
+        public static X509Certificate2 EncryptionCertificate=> CertificateLoader.LoadFromFile(ConfigurationManager.AppSettings["EncryptionCertificatePath"]);
+        public static X509Certificate2 DecryptionCertificate => CertificateLoader.LoadFromFile(ConfigurationManager.AppSettings["DecryptionCertificatePath"], MyConfig.TestCertficatePassword);
+        public static X509Certificate2 VerifyCertificate => CertificateLoader.LoadFromFile("TestCertificates/hello.world.2048.net.cer");
+        public static X509Certificate2 SigningCertificate => CertificateLoader.LoadFromFile("TestCertificates/hello.world.2048.net.pfx", MyConfig.TestCertficatePassword);
 
     }
 }

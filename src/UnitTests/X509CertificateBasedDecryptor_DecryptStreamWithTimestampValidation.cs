@@ -96,6 +96,33 @@ namespace UnitTests.Decryption
             //Assert
             Assert.IsTrue(input.SequenceEqual(decryptedOutput));
         }
+        [TestMethod]
+        //[ExpectedException(typeof(TimeoutException))]
+        public void WhenDecryptionPayloadDontHaveTimestamp_ThrowException()
+        {
+            //Arrange
+            const string inputString = "Hello World!";
+            byte[] input = Encoding.UTF8.GetBytes(inputString);
+            bool exceptionThrown = false;
+            //Act
+
+            byte[] encryptedArray = EncryptionDecryptionUtils.EncryptBytesUsingX509CertificateBasedEncryptor(MyConfig.EncryptionCertificate, input);
+            try
+            {
+                byte[] decryptedOutput = EncryptionDecryptionUtils.DecryptBytesWithTimestampValidationUsingX509CertificateBasedDecryptor(
+                    encryptedArray,
+                    thumbprint => MyConfig.DecryptionCertificate);
+            }catch(ArgumentOutOfRangeException aoorEx)
+            {
+                exceptionThrown = true;
+            }
+            catch(InvalidOperationException ioEx)
+            {
+                exceptionThrown = true;
+            }
+            //Assert
+            Assert.IsTrue(exceptionThrown,$"Expected either {typeof(ArgumentOutOfRangeException)} or {typeof(InvalidOperationException)}");
+        }
         #endregion
     }
 }

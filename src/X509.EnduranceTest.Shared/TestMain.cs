@@ -8,6 +8,7 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 
 using Org.Security.Cryptography;
+using UnitTests;
 
 namespace X509.EnduranceTest.Shared
 {
@@ -33,6 +34,7 @@ namespace X509.EnduranceTest.Shared
             }
             catch (Exception err)
             {
+
                 var topError = err;
 
                 while (null != err)
@@ -60,7 +62,7 @@ namespace X509.EnduranceTest.Shared
 
                 var input = (Console.ReadLine() ?? string.Empty).Trim().ToUpper();
 
-                var cert = X509CertificateCache.GetCertificate(X509Thumbprint);
+                var cert = MyConfig.DecryptionCertificate;
 
                 switch (input)
                 {
