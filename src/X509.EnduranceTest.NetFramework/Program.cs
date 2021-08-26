@@ -1,11 +1,12 @@
 ﻿
 using System;
+using System.Threading.Tasks;
 
 namespace X509.EnduranceTest
 {
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             X509.EnduranceTest.Shared.TestMain.Run();
 
