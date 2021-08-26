@@ -61,7 +61,7 @@ namespace X509.EnduranceTest.Shared
                 PrintErrorSummary(err);
             }
 
-            void PrintErrorSummary(Exception ex)
+            static void PrintErrorSummary(Exception ex)
             {
                 Console.WriteLine("ERROR:");
                 while (null != ex)
@@ -72,6 +72,16 @@ namespace X509.EnduranceTest.Shared
                 }
             }
         }
-
+        internal static void WriteRecursively(Exception err)
+        {
+            var topError = err;
+            while (null != err)
+            {
+                Console.WriteLine($"[{err.GetType().FullName}]");
+                Console.WriteLine(err.Message);
+                err = err.InnerException;
+            }
+            Console.WriteLine(topError.StackTrace);
+        }
     }
 }

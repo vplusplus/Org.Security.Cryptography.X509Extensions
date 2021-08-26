@@ -67,11 +67,19 @@ namespace Org.Security.Cryptography
             string valueToDecode,
             Func<string, X509Certificate2> certificateSelector)
         {
+            return this.DecryptBase64EncodedStringWithTimestampValidation(valueToDecode, certificateSelector, Defaults.EncyptedPayloadTimeSpan);
+        }
+        public string DecryptBase64EncodedStringWithTimestampValidation(
+            string valueToDecode,
+            Func<string, X509Certificate2> certificateSelector, 
+            TimeSpan lifeSpanOfInput,
+           string dataEncryptionAlgorithmName = Defaults.DEF_DataEncryptionAlgorithmName)
+        {
             var inputData = Convert.FromBase64String(valueToDecode);
             using (var input = new MemoryStream(inputData))
             using (var output = new MemoryStream(inputData.Length))
             {
-                this.DecryptStreamWithTimestampValidation(input, output, certificateSelector);
+                this.DecryptStreamWithTimestampValidation(input, output, certificateSelector,lifeSpanOfInput,dataEncryptionAlgorithmName);
                 output.Flush();
                 var outputArray = output.ToArray();
                 return Encoding.UTF8.GetString(outputArray);

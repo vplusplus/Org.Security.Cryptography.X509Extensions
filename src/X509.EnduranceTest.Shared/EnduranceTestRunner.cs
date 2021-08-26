@@ -4,9 +4,11 @@ using System.Diagnostics;
 
 namespace X509.EnduranceTest.Shared
 {
+    public record EnduranceTestResult(TimeSpan Elapsed, double IteractionsPerSecond, int IterationsCompleted);
+
     internal class EnduranceTestRunner
     {
-        internal static EnduranceTestResult BeginLoop( int maxIterations, Action actionToTest)
+        internal static EnduranceTestResult Run( int maxIterations, Action actionToTest)
         {
             Console.WriteLine($"MaxIterations: {maxIterations:#,0}");
 
@@ -33,9 +35,4 @@ namespace X509.EnduranceTest.Shared
             return new EnduranceTestResult(elapsed.Elapsed,rate,counter);
         }
     }
-    public record EnduranceTestResult (TimeSpan Elapsed,double iteractionsPerSecond, int iterationsCompleted);
-}
-
-namespace System.Runtime.CompilerServices
-{
 }

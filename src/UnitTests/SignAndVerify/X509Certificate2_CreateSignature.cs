@@ -22,11 +22,9 @@ namespace UnitTests.SignAndVerify
             var payload = Encoding.UTF8.GetBytes(TestData);
             X509Certificate2 certificate2 = null;
             //Act
-            using (var hashAlgorithm = HashAlgorithm.Create("MD5"))
-            {
-                var hash = hashAlgorithm.ComputeHash(payload);
-                certificate2.CreateSignature(hash);
-            }
+            using var hashAlgorithm = HashAlgorithm.Create("MD5");
+            var hash = hashAlgorithm.ComputeHash(payload);
+            certificate2.CreateSignature(hash);
         }
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
@@ -34,10 +32,8 @@ namespace UnitTests.SignAndVerify
         {
             //arrange
             //Act
-            using (var hashAlgorithm = HashAlgorithm.Create("MD5"))
-            {
-                MyConfig.SigningCertificate.CreateSignature(null);
-            }
+            using var hashAlgorithm = HashAlgorithm.Create("MD5");
+            MyConfig.SigningCertificate.CreateSignature(null);
         }
         #endregion
     }

@@ -8,10 +8,7 @@ namespace X509.EnduranceTest
     {
         static async Task Main(string[] args)
         {
-            X509.EnduranceTest.Shared.TestMain.Run();
-
-            Console.WriteLine("Press ENTER to quit...");
-            Console.ReadLine();
+            await X509.EnduranceTest.Shared.TestMain.Run();
         }
     }
 }

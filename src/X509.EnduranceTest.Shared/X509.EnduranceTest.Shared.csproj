@@ -7,6 +7,7 @@
     <LangVersion>9.0</LangVersion>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Bogus" Version="33.0.2" />
     <PackageReference Include="EasyConsoleStd" Version="2.0.0" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
   </ItemGroup>

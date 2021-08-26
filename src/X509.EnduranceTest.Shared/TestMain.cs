@@ -15,15 +15,6 @@ namespace X509.EnduranceTest.Shared
 {
     public static class TestMain
     {
-        #region AppSettings
-
-        static int SampleDataSizeKB => Convert.ToInt32(AppSetting("SampleDataSizeKB"));
-        static int LoopCount => Convert.ToInt32(AppSetting("LoopCount"));
-
-        static string AppSetting(string name) => ConfigurationManager.AppSettings[name] ?? throw new Exception($"AppSetting 'name' not defined.");
-
-        #endregion
-
         async public static Task Run()
         {
             try
@@ -32,29 +23,35 @@ namespace X509.EnduranceTest.Shared
             }
             catch (Exception err)
             {
-                var topError = err;
-                while (null != err)
-                {
-                    Console.WriteLine($"[{err.GetType().FullName}]");
-                    Console.WriteLine(err.Message);
-                    err = err.InnerException;
-                }
-                Console.WriteLine(topError.StackTrace);
+                ConsoleWriter.WriteRecursively(err);
             }
         }
         async static Task PrintOptionsAndRunTestAsync()
         {
-            var menu = new Menu()
-                .AddSync("Print AsymmetricAlgorithm provider.", () => ConsoleWriter.PrintCSP(MyConfig.DecryptionCertificate))
-                .AddSync("Validate Encryption/Decryption, ONCE.", () => ValidateEncryptionAndDecryptionOnce(MyConfig.DecryptionCertificate))
-                .AddSync("Start ENcryption loop", () => BeginEncryptionLoop(MyConfig.DecryptionCertificate, LoopCount))
-                .AddSync("Start DEcryption loop", () => BeginDecryptionLoop(MyConfig.DecryptionCertificate, LoopCount));
+            bool canContinue= true;
+            while (canContinue)
+            {
+                var menu = new Menu()
+                    .AddSync("Print AsymmetricAlgorithm provider.", () => ConsoleWriter.PrintCSP(MyConfig.DecryptionCertificate))
+                    .AddSync("Validate Encryption/Decryption, ONCE.", () => ValidateEncryptionAndDecryptionOnce(MyConfig.DecryptionCertificate))
+                    .AddSync("X509Certificate2.EncryptStream - 8KB random data 100,000 times", () => X509Certificate2ExtensionsEnduranceTests.Encryption(MyConfig.DecryptionCertificate,8, 100000))
+                    .AddSync("X509Certificate2.DecryptStream - 8KB random data 100,000 times", () => X509Certificate2ExtensionsEnduranceTests.Decryption(MyConfig.DecryptionCertificate,8, 100000))
 
-            await menu.Display(CancellationToken.None);
+                    .AddSync("X509CertificateBasedEncryptor.EncryptStringToBase64WithTimestamp - Random 256 bytes, 100,000", () => X509CertificateBasedEncryptorEnduranceTests.EncryptStringToBase64WithTimestamp(.25, 100000))
+                    .AddSync("X509CertificateBasedDecryptor.DecryptBase64EncodedStringWithTimestampValidation - Random 256 bytes, 100,000", () => X509CertificateBasedDecryptorEnduranceTests.DecryptStringToBase64WithTimestamp(.25, 100000))
+                    .AddSync("X509CertificateBasedEncryptor.EncryptStringToBase64WithTimestamp - Random 1 KB, 100,000", () => X509CertificateBasedEncryptorEnduranceTests.EncryptStringToBase64WithTimestamp(1, 100000))
+                    .AddSync("X509CertificateBasedDecryptor.DecryptBase64EncodedStringWithTimestampValidation - Random 1 KB, 100,000", () => X509CertificateBasedDecryptorEnduranceTests.DecryptStringToBase64WithTimestamp(1, 100000))
+                    .AddSync("X509CertificateBasedEncryptor.EncryptStringToBase64WithTimestamp - Random 8KB, 100,000", () => X509CertificateBasedEncryptorEnduranceTests.EncryptStringToBase64WithTimestamp(8, 100000))
+                    .AddSync("X509CertificateBasedDecryptor.DecryptBase64EncodedStringWithTimestampValidation - Random 8KB, 100,000", () => X509CertificateBasedDecryptorEnduranceTests.DecryptStringToBase64WithTimestamp(8,100000))
+                    .AddSync("Exit",()=> canContinue = false);
+                await menu.Display(CancellationToken.None);
+            }
+            Console.WriteLine("Press ENTER to quit...");
+            Console.ReadLine();
         }
         public static void ValidateEncryptionAndDecryptionOnce(X509Certificate2 cert)
         {
-            var sampleData = TestDataGenerator.GenerateJunk(SampleDataSizeKB);
+            var sampleData = TestDataGenerator.GenerateJunk(MyConfigForEnduranceTests.SampleDataSizeKB);
             Console.WriteLine($"Generated {sampleData.Length / 1024} KB random binary data.");
 
             // Encrypt/Decrypt ONCE...
@@ -68,25 +65,5 @@ namespace X509.EnduranceTest.Shared
             var good = sampleData.SequenceEqual(decryptedBytes);
             if (!good) throw new Exception("Decrypted result doesn't match original data.");
         }
-        static void BeginEncryptionLoop(X509Certificate2 cert, int maxIterations)
-        {
-            var sampleData = TestDataGenerator.GenerateJunk(SampleDataSizeKB);
-            Console.WriteLine($"Generated {sampleData.Length / 1024} KB random binary data.");
-            var encryptedBytes = EncryptionDecryptionUtils.EncryptBytesUsingExtensionMethod(cert, sampleData);
-            var decryptedBytes = EncryptionDecryptionUtils.DecryptBytesUsingExtensionMethod(cert, encryptedBytes);
-
-            var result= EnduranceTestRunner.BeginLoop( maxIterations, () => EncryptionDecryptionUtils.EncryptBytesUsingExtensionMethod(cert, decryptedBytes));
-        }
-
-        static void BeginDecryptionLoop(X509Certificate2 cert, int maxIterations)
-        {
-            var sampleData = TestDataGenerator.GenerateJunk(SampleDataSizeKB);
-            Console.WriteLine($"Generated {sampleData.Length / 1024} KB random binary data.");
-            var encryptedBytes = EncryptionDecryptionUtils.EncryptBytesUsingExtensionMethod(cert, sampleData);
-            EnduranceTestRunner.BeginLoop( maxIterations, () => EncryptionDecryptionUtils.DecryptBytesUsingExtensionMethod(cert, encryptedBytes));
-        }
-
-        
     }
-   
 }

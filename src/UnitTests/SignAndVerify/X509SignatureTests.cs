@@ -23,20 +23,18 @@ namespace UnitTests.SignAndVerify
 
             foreach (var name in HashAlgorithmNames)
             {
-                using (var hashAlgorithm = HashAlgorithm.Create(name))
-                {
-                    // Digest
-                    var hash = hashAlgorithm.ComputeHash(payload);
-                    Console.WriteLine($"Hash: {name} {hash.Length * 8} bits / {hash.Length} BYTES");
+                using var hashAlgorithm = HashAlgorithm.Create(name);
+                // Digest
+                var hash = hashAlgorithm.ComputeHash(payload);
+                Console.WriteLine($"Hash: {name} {hash.Length * 8} bits / {hash.Length} BYTES");
 
-                    // Sign
-                    var signature = MyConfig.SigningCertificate.CreateSignature(hash);
-                    Console.WriteLine($"Signature: {signature.Length * 8} bits / {signature.Length} BYTES");
+                // Sign
+                var signature = MyConfig.SigningCertificate.CreateSignature(hash);
+                Console.WriteLine($"Signature: {signature.Length * 8} bits / {signature.Length} BYTES");
 
-                    // Verify
-                    var good = MyConfig.VerifyCertificate.VerifySignature(hash, signature);
-                    Assert.IsTrue(good);
-                }
+                // Verify
+                var good = MyConfig.VerifyCertificate.VerifySignature(hash, signature);
+                Assert.IsTrue(good);
             }
         }
     }

@@ -112,11 +112,11 @@ namespace UnitTests.Decryption
                 byte[] decryptedOutput = EncryptionDecryptionUtils.DecryptBytesWithTimestampValidationUsingX509CertificateBasedDecryptor(
                     encryptedArray,
                     thumbprint => MyConfig.DecryptionCertificate);
-            }catch(ArgumentOutOfRangeException aoorEx)
+            }catch (ArgumentOutOfRangeException)
             {
                 exceptionThrown = true;
             }
-            catch(InvalidOperationException ioEx)
+            catch(InvalidOperationException)
             {
                 exceptionThrown = true;
             }

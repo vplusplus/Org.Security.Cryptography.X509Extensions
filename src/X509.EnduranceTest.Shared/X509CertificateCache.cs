@@ -86,9 +86,8 @@ namespace X509.EnduranceTest.Shared
             // Lookup the cache.
             var found = CertificateCache.TryGetValue(cacheKey, out var certFromCache);
             if (found && null != certFromCache) return certFromCache;
-
             // Not in cache. Look in the store.
-            using (X509Store store = new X509Store(storeName, storeLocation))
+            using (X509Store store = new(storeName, storeLocation))
             {
                 // Open an existing store.
                 store.Open(OpenFlags.ReadOnly | OpenFlags.OpenExistingOnly);

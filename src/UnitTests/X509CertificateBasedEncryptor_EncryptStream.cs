@@ -27,8 +27,6 @@ namespace UnitTests.Encryption
         public void WhenTheInputStreamParameterIsNull_ThrowArgumentNullException()
         {
             //Arrange
-            const string TEST = "Hello World!";
-            byte[] input = Encoding.UTF8.GetBytes(TEST);
             //Act
             new X509CertificateBasedEncryptor().EncryptStream(MyConfig.EncryptionCertificate, null, new MemoryStream());
             //Assert
@@ -38,8 +36,6 @@ namespace UnitTests.Encryption
         public void WhenTheOutputStreamParameterIsNull_ThrowArgumentNullException()
         {
             //Arrange
-            const string TEST = "Hello World!";
-            byte[] input = Encoding.UTF8.GetBytes(TEST);
             //Act
             new X509CertificateBasedEncryptor().EncryptStream(MyConfig.EncryptionCertificate,  new MemoryStream(),null);
             //Assert

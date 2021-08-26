@@ -13,6 +13,4 @@
     <ProjectReference Include="..\Org.Security.Cryptography.X509Extensions\Org.Security.Cryptography.X509Extensions.csproj" />
     <ProjectReference Include="..\X509.EnduranceTest.Shared\X509.EnduranceTest.Shared.csproj" />
   </ItemGroup>
-
-
 </Project>
