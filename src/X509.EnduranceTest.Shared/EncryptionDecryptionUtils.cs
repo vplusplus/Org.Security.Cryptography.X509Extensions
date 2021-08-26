@@ -6,9 +6,9 @@ using Org.Security.Cryptography;
 
 namespace UnitTests
 {
-    class EncryptionDecryptionUtils
+    public class EncryptionDecryptionUtils
     {
-        internal static byte[] EncryptBytesWithTimestampUsingX509CertificateBasedEncryptor(X509Certificate2 x509Cert, byte[] inputData)
+        public  static byte[] EncryptBytesWithTimestampUsingX509CertificateBasedEncryptor(X509Certificate2 x509Cert, byte[] inputData)
         {
             var encryptor = new X509CertificateBasedEncryptor();
             using (var input = new MemoryStream(inputData))
@@ -19,7 +19,7 @@ namespace UnitTests
                 return output.ToArray();
             }
         }
-        internal static byte[] DecryptBytesWithTimestampValidationUsingX509CertificateBasedDecryptor(
+        public  static byte[] DecryptBytesWithTimestampValidationUsingX509CertificateBasedDecryptor(
             byte[] inputData,
             Func<string, X509Certificate2> certificateSelector,
             TimeSpan? lifeSpan = null)
@@ -40,7 +40,7 @@ namespace UnitTests
                 return output.ToArray();
             }
         }
-        internal static byte[] EncryptBytesUsingX509CertificateBasedEncryptor(X509Certificate2 x509Cert, byte[] inputData)
+        public  static byte[] EncryptBytesUsingX509CertificateBasedEncryptor(X509Certificate2 x509Cert, byte[] inputData)
         {
             var encryptor = new X509CertificateBasedEncryptor();
             using (var input = new MemoryStream(inputData))
@@ -51,7 +51,7 @@ namespace UnitTests
                 return output.ToArray();
             }
         }
-        internal static byte[] DecryptBytesUsingX509CertificateBasedDecryptor(byte[] inputData, Func<string, X509Certificate2> certificateSelector)
+        public  static byte[] DecryptBytesUsingX509CertificateBasedDecryptor(byte[] inputData, Func<string, X509Certificate2> certificateSelector)
         {
             var decryptor = new X509CertificateBasedDecryptor();
             using (var input = new MemoryStream(inputData))
@@ -62,7 +62,7 @@ namespace UnitTests
                 return output.ToArray();
             }
         }
-        internal static byte[] EncryptBytesUsingExtensionMethod(X509Certificate2 x509Cert, byte[] inputData)
+        public  static byte[] EncryptBytesUsingExtensionMethod(X509Certificate2 x509Cert, byte[] inputData)
         {
             using (var input = new MemoryStream(inputData))
             using (var output = new MemoryStream(inputData.Length))
@@ -72,7 +72,7 @@ namespace UnitTests
                 return output.ToArray();
             }
         }
-        internal static byte[] DecryptBytesUsingExtensionMethod(X509Certificate2 x509Cert, byte[] inputData)
+        public  static byte[] DecryptBytesUsingExtensionMethod(X509Certificate2 x509Cert, byte[] inputData)
         {
             using (var input = new MemoryStream(inputData))
             using (var output = new MemoryStream(inputData.Length))
@@ -84,4 +84,3 @@ namespace UnitTests
         }
     }
 }
-
