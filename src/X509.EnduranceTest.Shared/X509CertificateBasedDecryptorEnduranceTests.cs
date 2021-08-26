@@ -10,13 +10,16 @@ namespace X509.EnduranceTest.Shared
         internal static void DecryptStringToBase64WithTimestamp(double dataSizeInKB,int loopCount)
         {
             var sampleData = new Lorem().Random.String2((int)(dataSizeInKB * 1024));
-            Console.WriteLine($"Generated {sampleData.Length:0,#} bytes random binary data.");
+            Console.WriteLine($"Generated {sampleData.Length:0,#} bytes random text data.");
             var encryptor = new X509CertificateBasedEncryptor();
-            var encryptedValue = encryptor.EncryptStringToBase64WithTimestamp(MyConfig.EncryptionCertificate, sampleData);
+            var encryptonCertificate = MyConfig.EncryptionCertificate;
+            var decryptonCertificate = MyConfig.DecryptionCertificate;
+
+            var encryptedValue = encryptor.EncryptStringToBase64WithTimestamp(encryptonCertificate, sampleData);
             var decryptor = new X509CertificateBasedDecryptor();
 
             var result = EnduranceTestRunner.Run(loopCount,
-                () => decryptor.DecryptBase64EncodedStringWithTimestampValidation(encryptedValue,(thumprint)=>MyConfig.DecryptionCertificate,TimeSpan.FromMinutes(5)));
+                () => decryptor.DecryptBase64EncodedStringWithTimestampValidation(encryptedValue,(thumprint)=> decryptonCertificate, TimeSpan.FromMinutes(5)));
         }
     }
 }

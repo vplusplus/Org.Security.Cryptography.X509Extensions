@@ -10,10 +10,11 @@ namespace X509.EnduranceTest.Shared
         internal static void EncryptStringToBase64WithTimestamp(double dataSizeInKB, int loopCount)
         {
             var sampleData = new Lorem().Random.String2((int)(dataSizeInKB * 1024));
-            Console.WriteLine($"Generated {sampleData.Length:#,0} bytes random binary data.");
+            Console.WriteLine($"Generated {sampleData.Length:#,0} bytes random text data.");
             var encryptor = new X509CertificateBasedEncryptor();
+            var encryptionCertificate = MyConfig.EncryptionCertificate;
             var result = EnduranceTestRunner.Run(loopCount,
-                () => encryptor.EncryptStringToBase64WithTimestamp(MyConfig.EncryptionCertificate, sampleData));
+                () => encryptor.EncryptStringToBase64WithTimestamp(encryptionCertificate, sampleData));
         }
     }
 }
