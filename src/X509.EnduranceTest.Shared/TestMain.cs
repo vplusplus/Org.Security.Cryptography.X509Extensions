@@ -25,6 +25,8 @@ namespace X509.EnduranceTest.Shared
             {
                 ConsoleWriter.WriteRecursively(err);
             }
+            Console.WriteLine("Press ENTER to quit...");
+            Console.ReadLine();
         }
         async static Task PrintOptionsAndRunTestAsync()
         {
@@ -46,8 +48,7 @@ namespace X509.EnduranceTest.Shared
                     .AddSync("Exit",()=> canContinue = false);
                 await menu.Display(CancellationToken.None);
             }
-            Console.WriteLine("Press ENTER to quit...");
-            Console.ReadLine();
+            
         }
         public static void ValidateEncryptionAndDecryptionOnce(X509Certificate2 cert)
         {
