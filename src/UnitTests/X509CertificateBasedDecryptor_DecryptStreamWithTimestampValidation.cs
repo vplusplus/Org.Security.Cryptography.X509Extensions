@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Org.Security.Cryptography;
 
 namespace UnitTests.Decryption
 {
@@ -17,6 +18,7 @@ namespace UnitTests.Decryption
         public void WhenDecryptionCertificateDontHavePrivateKey_ThrowException()
         {
             //Arrange
+            CacheManager.ClearCache();
             const string inputString = "Hello World!";
             byte[] input = Encoding.UTF8.GetBytes(inputString);
             //Act
@@ -96,8 +98,11 @@ namespace UnitTests.Decryption
             //Assert
             Assert.IsTrue(input.SequenceEqual(decryptedOutput));
         }
+        /// <summary>
+        /// TODO: This guy gives different exceptions different times One time got StackOverflowException.
+        /// Consider having a header to denote the encrypted package.
+        /// </summary>
         [TestMethod]
-        //[ExpectedException(typeof(TimeoutException))]
         public void WhenDecryptionPayloadDontHaveTimestamp_ThrowException()
         {
             //Arrange

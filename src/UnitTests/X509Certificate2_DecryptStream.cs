@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Org.Security.Cryptography;
 using X509.EnduranceTest.Shared;
 
 namespace UnitTests.Decryption
@@ -15,6 +16,7 @@ namespace UnitTests.Decryption
         public void WhenDecryptStreamIsCalledWithCertThatDontHavePrivateKey_ThrowException()
         {
             //Arrange
+            CacheManager.ClearCache();
             const string TEST = "Hello World!";
             var x509CertWithoutPrivateKey = CertificateLoader.LoadFromFile("TestCertificates/hello.world.2048.net.cer");
             byte[] input = Encoding.UTF8.GetBytes(TEST);

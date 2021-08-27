@@ -1,6 +1,4 @@
-﻿
-using Microsoft.Extensions.Caching.Memory;
-using System;
+﻿using System;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 
@@ -73,23 +71,6 @@ namespace Org.Security.Cryptography
                  }
 
              });
-        }
-    }
-    static class CacheManager
-    {
-        static MemoryCache algorithmCache = new MemoryCache(new MemoryCacheOptions());
-
-        internal static TOut GetOrAdd<TOut>(object key, Func<object, TOut> valueFunction)
-        {
-            TOut outValue;
-            algorithmCache.TryGetValue<TOut>(key, out outValue);
-            if (null == outValue)
-            {
-                outValue = valueFunction(key);
-                algorithmCache.Set<TOut>(key, outValue);
-
-            }
-            return outValue;
         }
     }
 }
