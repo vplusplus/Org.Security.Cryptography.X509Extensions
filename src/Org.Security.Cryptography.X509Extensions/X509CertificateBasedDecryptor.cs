@@ -15,8 +15,7 @@ namespace Org.Security.Cryptography
             Func<string, X509Certificate2> certificateSelector,
             string dataEncryptionAlgorithmName = Defaults.DEF_DataEncryptionAlgorithmName)
         {
-            ValidateDecryptParamsAndThrowException(inputStream, outputStream, dataEncryptionAlgorithmName, certificateSelector);
-            var certificateForKeyEncryption = GetCertificateFromStream(inputStream, certificateSelector);
+            var certificateForKeyEncryption = GetCertificateFromStreamAfterValidations(inputStream, outputStream, dataEncryptionAlgorithmName, certificateSelector);
             certificateForKeyEncryption.DecryptStreamWithTimestampValidation(inputStream, outputStream, false, dataEncryptionAlgorithmName);
         }
 
@@ -56,9 +55,7 @@ namespace Org.Security.Cryptography
            string dataEncryptionAlgorithmName = Defaults.DEF_DataEncryptionAlgorithmName
            )
         {
-            ValidateDecryptParamsAndThrowException(inputStream, outputStream, dataEncryptionAlgorithmName, certificateSelector);
-
-            X509Certificate2 certificateForKeyEncryption = GetCertificateFromStream(inputStream, certificateSelector);
+            X509Certificate2 certificateForKeyEncryption = GetCertificateFromStreamAfterValidations(inputStream, outputStream, dataEncryptionAlgorithmName, certificateSelector);
 
             certificateForKeyEncryption.DecryptStreamWithTimestampValidation(inputStream, outputStream, lifeSpanOfInput, dataEncryptionAlgorithmName);
         }
@@ -71,7 +68,7 @@ namespace Org.Security.Cryptography
         }
         public string DecryptBase64EncodedStringWithTimestampValidation(
             string valueToDecode,
-            Func<string, X509Certificate2> certificateSelector, 
+            Func<string, X509Certificate2> certificateSelector,
             TimeSpan lifeSpanOfInput,
            string dataEncryptionAlgorithmName = Defaults.DEF_DataEncryptionAlgorithmName)
         {
@@ -79,7 +76,7 @@ namespace Org.Security.Cryptography
             using (var input = new MemoryStream(inputData))
             using (var output = new MemoryStream(inputData.Length))
             {
-                this.DecryptStreamWithTimestampValidation(input, output, certificateSelector,lifeSpanOfInput,dataEncryptionAlgorithmName);
+                this.DecryptStreamWithTimestampValidation(input, output, certificateSelector, lifeSpanOfInput, dataEncryptionAlgorithmName);
                 output.Flush();
                 var outputArray = output.ToArray();
                 return Encoding.UTF8.GetString(outputArray);
@@ -88,21 +85,16 @@ namespace Org.Security.Cryptography
         #endregion
 
         #region Private helpers
-        private static X509Certificate2 GetCertificateFromStream(Stream inputStream, Func<string, X509Certificate2> certificateSelector)
+        private static X509Certificate2 GetCertificateFromStreamAfterValidations(Stream inputStream, Stream outputStream, string dataEncryptionAlgorithmName, Func<string, X509Certificate2> certificateSelector)
         {
+            if (null == certificateSelector) throw new ArgumentNullException(nameof(certificateSelector));
             var thumprintArray = inputStream.ReadLengthAndBytes(maxBytes: 2048);
             var certificateThumbprint = Encoding.UTF8.GetString(thumprintArray);
             var certificateForKeyEncryption = certificateSelector(certificateThumbprint);
-            if (null == certificateForKeyEncryption) throw new ArgumentNullException("The certificate cannot be null");
+            Validator.ValidateParametersAndThrowException(certificateForKeyEncryption, inputStream, outputStream, dataEncryptionAlgorithmName);
             return certificateForKeyEncryption;
-        }
-        private static void ValidateDecryptParamsAndThrowException(Stream inputStream, Stream outputStream, string dataEncryptionAlgorithmName, Func<string, X509Certificate2> certificateSelector)
-        {
-            if (null == certificateSelector) throw new ArgumentNullException(nameof(certificateSelector));
-            if (null == inputStream) throw new ArgumentNullException(nameof(inputStream));
-            if (null == outputStream) throw new ArgumentNullException(nameof(outputStream));
-            if (null == dataEncryptionAlgorithmName) throw new ArgumentNullException(nameof(dataEncryptionAlgorithmName));
         }
         #endregion
     }
+
 }

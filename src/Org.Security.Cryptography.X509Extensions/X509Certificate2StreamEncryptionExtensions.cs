@@ -28,10 +28,7 @@ namespace Org.Security.Cryptography
                                 int keySize = Defaults.DEF_KeySize,
                                 int blockSize = Defaults.DEF_BlockSize)
         {
-            if (null == x509Cert) throw new ArgumentNullException(nameof(x509Cert));
-            if (null == inputStream) throw new ArgumentNullException(nameof(inputStream));
-            if (null == outputStream) throw new ArgumentNullException(nameof(outputStream));
-            if (null == dataEncryptionAlgorithmName) throw new ArgumentNullException(nameof(dataEncryptionAlgorithmName));
+            Validator.ValidateParametersAndThrowException(x509Cert, inputStream, outputStream, dataEncryptionAlgorithmName);
 
             // Encrypt using Public key.
             // DO NOT Dispose this; Doing so will render the X509Certificate use-less, if the caller had cached the cert.
@@ -41,7 +38,7 @@ namespace Org.Security.Cryptography
 
             using (var dataEncryption = SymmetricAlgorithm.Create(dataEncryptionAlgorithmName))
             {
-                if (null == dataEncryption) throw new Exception($"SymmetricAlgorithm.Create('{dataEncryptionAlgorithmName}') returned null.");
+                if (null == dataEncryption) throw new CryptographicException($"Not able to create Symmetric Data Encryption Algorithm using {dataEncryptionAlgorithmName}");
 
                 // Select suggested keySize/blockSize.
                 dataEncryption.KeySize = keySize;
@@ -49,6 +46,8 @@ namespace Org.Security.Cryptography
                 EncryptStream(inputStream, outputStream, includeUTCTimeStamp, keyEncryption, dataEncryption);
             }
         }
+
+       
         #endregion
 
         #region Private Helpers

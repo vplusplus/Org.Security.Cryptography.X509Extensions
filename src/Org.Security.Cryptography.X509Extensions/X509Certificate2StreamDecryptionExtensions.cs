@@ -28,7 +28,7 @@ namespace Org.Security.Cryptography
             bool validateTimestamp,
             string dataEncryptionAlgorithmName = Defaults.DEF_DataEncryptionAlgorithmName)
         {
-            ValidateDecryptParamsAndThrowException(x509Cert, inputStream, outputStream, dataEncryptionAlgorithmName);
+            Validator.ValidateParametersAndThrowException(x509Cert, inputStream, outputStream, dataEncryptionAlgorithmName);
             // Decrypt using Private key.
             // DO NOT Dispose this; Doing so will render the X509Certificate use-less, if the caller had cached the cert.
             // We didn't acquire the X509 Certificate; Caller is responsible for disposing X509Certificate2. 
@@ -48,7 +48,7 @@ namespace Org.Security.Cryptography
         TimeSpan lifeSpan,
         string dataEncryptionAlgorithmName = Defaults.DEF_DataEncryptionAlgorithmName)
         {
-            ValidateDecryptParamsAndThrowException(x509Cert, inputStream, outputStream, dataEncryptionAlgorithmName);
+            Validator.ValidateParametersAndThrowException(x509Cert, inputStream, outputStream, dataEncryptionAlgorithmName);
             // Decrypt using Private key.
             // DO NOT Dispose this; Doing so will render the X509Certificate use-less, if the caller had cached the cert.
             // We didn't acquire the X509 Certificate; Caller is responsible for disposing X509Certificate2. 
@@ -97,13 +97,7 @@ namespace Org.Security.Cryptography
                 cryptoStream.CopyTo(outputStream, bufferSize: dataEncryption.BlockSize * 4);
             }
         }
-        private static void ValidateDecryptParamsAndThrowException(X509Certificate2 x509Cert, Stream inputStream, Stream outputStream, string dataEncryptionAlgorithmName)
-        {
-            if (null == x509Cert) throw new ArgumentNullException(nameof(x509Cert));
-            if (null == inputStream) throw new ArgumentNullException(nameof(inputStream));
-            if (null == outputStream) throw new ArgumentNullException(nameof(outputStream));
-            if (null == dataEncryptionAlgorithmName) throw new ArgumentNullException(nameof(dataEncryptionAlgorithmName));
-        }
+      
         #endregion
     }
 }
