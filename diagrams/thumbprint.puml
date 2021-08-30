@@ -14,7 +14,7 @@ package payload {
     }
 }
 object Receiver {
-    Encrypt data
+    Decrypt data
 }
 Sender -right-> Contents
 Contents -right-> Receiver
