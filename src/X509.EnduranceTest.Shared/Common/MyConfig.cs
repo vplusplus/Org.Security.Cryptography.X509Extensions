@@ -21,7 +21,7 @@ namespace UnitTests
         /// </summary>
         public static X509Certificate2 EncryptionCertificate=> CertificateLoader.LoadFromFile(ConfigurationManager.AppSettings["EncryptionCertificatePath"]);
         public static X509Certificate2 DecryptionCertificate => CertificateLoader.LoadFromFile(ConfigurationManager.AppSettings["DecryptionCertificatePath"], MyConfig.TestCertficatePassword);
-        public static X509Certificate2 VerifyCertificate => CertificateLoader.LoadFromFile("TestCertificates/hello.world.2048.net.cer");
-        public static X509Certificate2 SigningCertificate => CertificateLoader.LoadFromFile("TestCertificates/hello.world.2048.net.pfx", MyConfig.TestCertficatePassword);
+        public static X509Certificate2 VerifyCertificate => CertificateLoader.LoadFromFile(ConfigurationManager.AppSettings["VerifyCertificatePath"]);
+        public static X509Certificate2 SigningCertificate => CertificateLoader.LoadFromFile(ConfigurationManager.AppSettings["SigningCertificatePath"], MyConfig.TestCertficatePassword);
     }
 }

@@ -19,7 +19,7 @@ namespace UnitTests.SignAndVerify
 
             var payload = Encoding.UTF8.GetBytes(TestData);
 
-            string[] HashAlgorithmNames = { "MD5", "SHA1", "SHA256", "SHA384", "SHA512" };
+            string[] HashAlgorithmNames = {  "SHA256", "SHA384", "MD5", "SHA1", "SHA512" };
 
             foreach (var name in HashAlgorithmNames)
             {

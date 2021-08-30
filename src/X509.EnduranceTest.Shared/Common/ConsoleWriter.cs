@@ -1,4 +1,5 @@
 ﻿
+using EasyConsole;
 using System;
 using System.Security.Cryptography.X509Certificates;
 
@@ -72,6 +73,12 @@ namespace X509.EnduranceTest.Shared
                 }
             }
         }
+
+        internal static void WriteSuccess(string value)
+        {
+            Output.WriteLine(ConsoleColor.Green, value);
+        }
+
         internal static void WriteRecursively(Exception err)
         {
             var topError = err;

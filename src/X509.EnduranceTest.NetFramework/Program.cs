@@ -1,6 +1,8 @@
 ﻿
 using System;
+using System.Threading;
 using System.Threading.Tasks;
+using X509.EnduranceTest.Shared;
 
 namespace X509.EnduranceTest
 {
@@ -8,7 +10,8 @@ namespace X509.EnduranceTest
     {
         static async Task Main(string[] args)
         {
-            await X509.EnduranceTest.Shared.TestMain.Run();
+            await new TestProgram().Run(CancellationToken.None);
+            //await X509.EnduranceTest.Shared.TestMain.Run();
         }
     }
 }
