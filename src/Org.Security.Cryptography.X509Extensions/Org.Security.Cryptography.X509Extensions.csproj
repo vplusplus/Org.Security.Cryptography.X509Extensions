@@ -16,5 +16,16 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReleaseNotes></PackageReleaseNotes>
   </PropertyGroup>
+  <PropertyGroup>
+    <LogFile>Docfx-$(TargetFramework).log</LogFile>
+    <LogLevel>Warning</LogLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="docfx.console" Version="2.58.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="5.0.0" />
+  </ItemGroup>
 
 </Project>

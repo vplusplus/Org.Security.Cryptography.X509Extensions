@@ -42,7 +42,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 
-namespace Org.Security.Cryptography
+namespace X509.EnduranceTest.Shared
 {
     /// <summary>
     /// Per-thread-cache of X509Certificate2 instances, identified by StoreName, StoreLocation, Thumbprint and an optional cache name.
@@ -86,9 +86,8 @@ namespace Org.Security.Cryptography
             // Lookup the cache.
             var found = CertificateCache.TryGetValue(cacheKey, out var certFromCache);
             if (found && null != certFromCache) return certFromCache;
-
             // Not in cache. Look in the store.
-            using (X509Store store = new X509Store(storeName, storeLocation))
+            using (X509Store store = new(storeName, storeLocation))
             {
                 // Open an existing store.
                 store.Open(OpenFlags.ReadOnly | OpenFlags.OpenExistingOnly);

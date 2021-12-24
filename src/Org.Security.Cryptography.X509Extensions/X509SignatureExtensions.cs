@@ -19,8 +19,9 @@ namespace Org.Security.Cryptography
             var hashAlgorithmName = InferHashAlgorithm(messageDigest);
 
             var formatter = new RSAPKCS1SignatureFormatter(asymmetricAlgorithm);
+            
             formatter.SetHashAlgorithm(hashAlgorithmName);
-
+            // The below code will throw exception when running in .Net Framework, if the algorithm is MD5 
             return formatter.CreateSignature(messageDigest);
         }
 
@@ -45,15 +46,12 @@ namespace Org.Security.Cryptography
 
         static string InferHashAlgorithm(byte[] hash)
         {
-            if (null == hash) throw new ArgumentNullException(nameof(hash));
-
-            // MD5      128 bit / 16 bytes
-            // SHA1     160 bit / 20 bytes
-            // SHA224   224 bit / 28 bytes
-            // SHA265   256 bit / 32 bytes
-            // SHA384   384 bit / 48 bytes
-            // SHA512   512 bit / 64 bytes
-
+            // MD5      128 bit /8 = 16 bytes
+            // SHA1     160 bit /8 = 20 bytes
+            // SHA224   224 bit /8 = 28 bytes
+            // SHA265   256 bit /8 = 32 bytes
+            // SHA384   384 bit /8 = 48 bytes
+            // SHA512   512 bit /8 = 64 bytes
             switch (hash.Length)
             {
                 case 16: return HashAlgorithmName.MD5.Name;
