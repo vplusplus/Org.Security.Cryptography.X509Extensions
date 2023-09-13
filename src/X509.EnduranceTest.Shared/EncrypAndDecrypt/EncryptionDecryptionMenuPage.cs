@@ -23,8 +23,6 @@ namespace X509.EnduranceTest.Shared
             this.Menu.AddSync("X509CertificateBasedDecryptor.DecryptBase64EncodedStringWithTimestampValidation - Random 1 KB, 100,000", () => X509CertificateBasedDecryptorEnduranceTests.DecryptStringToBase64WithTimestamp(1, 100000));
             this.Menu.AddSync("X509CertificateBasedEncryptor.EncryptStringToBase64WithTimestamp - Random 8KB, 100,000", () => X509CertificateBasedEncryptorEnduranceTests.EncryptStringToBase64WithTimestamp(8, 100000));
             this.Menu.AddSync("X509CertificateBasedDecryptor.DecryptBase64EncodedStringWithTimestampValidation - Random 8KB, 100,000", () => X509CertificateBasedDecryptorEnduranceTests.DecryptStringToBase64WithTimestamp(8, 100000));
-
-
         }
         public async  override Task Display(CancellationToken cancellationToken)
         {
